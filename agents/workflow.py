@@ -17,6 +17,8 @@ from agents.memory_agent import MemoryAgent
 from agents.reasoning_agent import ReasoningAgent
 from agents.synthesis_agent import SynthesisAgent
 from agents.guardrails_agent import GuardrailsAgent
+from agents.duplicate_detector_agent import DuplicateDetectorAgent
+from agents.sla_predictor_agent import SLAPredictorAgent
 
 
 class AgentWorkflow:
@@ -35,7 +37,9 @@ class AgentWorkflow:
             "memory": MemoryAgent(),
             "reasoning": ReasoningAgent(),
             "synthesis": SynthesisAgent(),
-            "guardrails": GuardrailsAgent()
+            "guardrails": GuardrailsAgent(),
+            "duplicate_detector": DuplicateDetectorAgent(),
+            "sla_predictor": SLAPredictorAgent()
         }
         
         # Initialize orchestrator with agents
@@ -73,6 +77,10 @@ class AgentWorkflow:
             # Execute orchestrator (handles general chat vs multi-agent routing)
             state = await self.orchestrator.process(state)
             
+            # If this is a ticket (not general chat), run duplicate detection and SLA prediction
+            if state.get("intent") and state.get("intent") != "general_chat":
+                await self._enhance_ticket_processing(state)
+            
             # Log final results
             self._log_final_state(state)
             
@@ -87,6 +95,54 @@ class AgentWorkflow:
             state["error"] = str(e)
             state["response"] = "I apologize, but an error occurred. Please try again or contact support."
             return state
+    
+    async def _enhance_ticket_processing(self, state: Dict[str, Any]):
+        """
+        Enhance ticket processing with duplicate detection and SLA prediction.
+        
+        Args:
+            state: Current ticket state
+        """
+        try:
+            # Run duplicate detection
+            duplicate_result = await self.agents["duplicate_detector"].process({
+                'ticket_id': state.get('ticket_id'),
+                'ticket_title': state.get('user_input', '')[:100],  # First 100 chars as title
+                'ticket_description': state.get('user_input', '')
+            })
+            
+            state['duplicates'] = duplicate_result.get('duplicates', {})
+            state['duplicate_count'] = duplicate_result.get('total_found', 0)
+            
+            # Check if there are exact or very similar duplicates
+            exact_duplicates = duplicate_result.get('duplicates', {}).get('exact_duplicate', [])
+            very_similar = duplicate_result.get('duplicates', {}).get('very_similar', [])
+            
+            if exact_duplicates or very_similar:
+                state['has_duplicates'] = True
+                state['duplicate_warning'] = f"Found {len(exact_duplicates + very_similar)} similar ticket(s)"
+                logger.info(f"⚠️ Duplicate detected: {len(exact_duplicates)} exact, {len(very_similar)} very similar")
+            
+            # Run SLA prediction
+            sla_result = await self.agents["sla_predictor"].process({
+                'urgency': state.get('urgency', 'medium'),
+                'complexity': state.get('complexity', 'moderate'),
+                'category': state.get('category', 'general'),
+                'created_at': state.get('timestamp'),
+                'similar_tickets': very_similar[:3] if very_similar else []  # Use top 3 similar for historical learning
+            })
+            
+            state['sla'] = sla_result
+            state['sla_risk'] = sla_result.get('breach_risk', {}).get('level', 'safe')
+            state['sla_response_hours'] = sla_result.get('time_remaining', {}).get('response_hours', 0)
+            state['sla_resolution_hours'] = sla_result.get('time_remaining', {}).get('resolution_hours', 0)
+            
+            logger.info(f"SLA Risk: {state['sla_risk']} - Response: {state['sla_response_hours']:.1f}h, Resolution: {state['sla_resolution_hours']:.1f}h")
+            
+        except Exception as e:
+            logger.error(f"Error in ticket enhancement: {str(e)}")
+            # Don't fail the whole workflow if enhancement fails
+            state['enhancement_error'] = str(e)
     
     def _log_final_state(self, state: Dict[str, Any]):
         """Log final state for debugging and observability"""
@@ -109,6 +165,13 @@ class AgentWorkflow:
         logger.info(f"  Past Tickets Found: {state.get('memory_matches', 0)}")
         logger.info(f"  Pattern Detected: {state.get('pattern_detected', False)}")
         logger.info(f"  Safety Passed: {state.get('safety_passed', True)}")
+        
+        if state.get('has_duplicates'):
+            logger.info(f"  🔍 Similar Tickets: {state.get('duplicate_count', 0)}")
+        
+        if state.get('sla_risk'):
+            risk_emoji = {'safe': '✅', 'warning': '⏰', 'danger': '⚠️', 'critical': '🚨'}.get(state['sla_risk'], '❓')
+            logger.info(f"  {risk_emoji} SLA Risk: {state.get('sla_risk', 'unknown').upper()}")
         
         if state.get("needs_human_review"):
             logger.info(f"  ⚠️  NEEDS HUMAN REVIEW")
