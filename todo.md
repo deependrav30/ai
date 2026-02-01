@@ -31,7 +31,7 @@
 - `22f1b6db` - fix: Session ID handling in Agent Chat page
 - Previous commits contain full agent system implementation
 
-### ✅ **Phase 6: COMPLETED** (Docker Services & Testing)
+### ✅ **Phase 6: COMPLETED** (Docker Services, Testing & Enhanced Ingestion)
 
 **Completed Items:**
 1. ✅ Start Docker Compose services (Redis:6380, PostgreSQL:5433, ChromaDB:8001)
@@ -43,7 +43,13 @@
 7. ✅ Created observability test data (8 test tickets, 88% intent accuracy)
 8. ✅ Fixed RetrievalAgent content mapping (chunk → content field)
 9. ✅ End-to-end workflow tested with KB retrieval validation
-10. 🔄 Enhanced document ingestion (tables, figures, semantic chunking) - NEXT
+10. ✅ Enhanced document ingestion with semantic chunking
+    - Created EnhancedIngestionPipeline with semantic chunking by paragraphs
+    - Chunks by document structure vs fixed character count
+    - Metadata enrichment: section names, chunk types, table/figure detection
+    - Results: 8 chunks (909 chars avg) vs 17 chunks (476 chars avg)
+    - Better context preservation with larger semantic chunks
+    - Metadata fields increased from 5 to 11
 
 ### 🎯 **Phase 7: NEXT** (Enhanced Features & Testing)
 
