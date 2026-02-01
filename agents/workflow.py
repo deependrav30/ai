@@ -7,6 +7,7 @@ Initializes all agents and orchestrates ticket processing.
 import asyncio
 from typing import Dict, Any
 from datetime import datetime
+import time
 
 from agents.base_agent import logger
 from agents.general_chatbot import GeneralChatbot
@@ -19,6 +20,7 @@ from agents.synthesis_agent import SynthesisAgent
 from agents.guardrails_agent import GuardrailsAgent
 from agents.duplicate_detector_agent import DuplicateDetectorAgent
 from agents.sla_predictor_agent import SLAPredictorAgent
+from utils.metrics import tickets_processed_total, ticket_resolution_time_seconds, workflow_executions_total, workflow_duration_seconds
 
 
 class AgentWorkflow:
@@ -58,6 +60,9 @@ class AgentWorkflow:
         Returns:
             Final state with response and all agent outputs
         """
+        start_time = time.time()
+        workflow_status = "success"
+        
         # Initialize state
         state = {
             "user_input": user_input,
@@ -88,13 +93,35 @@ class AgentWorkflow:
             if state.get("response_generated") and not state.get("blocked"):
                 self.agents["memory"].store_episodic_memory(state)
             
+            # Track metrics
+            intent = state.get("intent", "unknown")
+            urgency = state.get("urgency", "unknown")
+            status = "resolved" if state.get("response_generated") else "unresolved"
+            
+            tickets_processed_total.labels(intent=intent, urgency=urgency, status=status).inc()
+            
+            # Track resolution time
+            duration = time.time() - start_time
+            ticket_resolution_time_seconds.labels(intent=intent, urgency=urgency).observe(duration)
+            
             return state
             
         except Exception as e:
             logger.error(f"Workflow error: {str(e)}")
+            workflow_status = "failure"
             state["error"] = str(e)
             state["response"] = "I apologize, but an error occurred. Please try again or contact support."
+            
+            # Track failed ticket
+            tickets_processed_total.labels(intent="unknown", urgency="unknown", status="error").inc()
+            
             return state
+        finally:
+            # Track workflow execution
+            workflow_type = state.get("mode", "multi_agent")
+            duration = time.time() - start_time
+            workflow_executions_total.labels(workflow_type=workflow_type, status=workflow_status).inc()
+            workflow_duration_seconds.labels(workflow_type=workflow_type).observe(duration)
     
     async def _enhance_ticket_processing(self, state: Dict[str, Any]):
         """

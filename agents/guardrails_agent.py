@@ -23,6 +23,7 @@ import os
 import re
 from openai import OpenAI
 from .base_agent import BaseAgent, logger
+from utils.metrics import track_agent_execution, track_openai_call
 
 
 class GuardrailsAgent(BaseAgent):
@@ -45,6 +46,7 @@ class GuardrailsAgent(BaseAgent):
             "financial_fraud": ["transfer money", "unauthorized access", "steal", "fraud", "scam", "hack account"]
         }
     
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validate safety of user input and generated response.

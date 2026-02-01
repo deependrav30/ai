@@ -13,6 +13,7 @@ from typing import Dict, Any
 import os
 from openai import OpenAI
 from .base_agent import BaseAgent, logger
+from utils.metrics import track_agent_execution, track_openai_call
 
 
 class GeneralChatbot(BaseAgent):
@@ -84,6 +85,7 @@ Keep responses friendly, concise, and helpful.
         # Default to general for short, simple queries
         return len(query.split()) <= 10
     
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process general query with simple GPT-4 chat.
@@ -107,6 +109,9 @@ Keep responses friendly, concise, and helpful.
                 temperature=0.7,
                 max_tokens=300
             )
+            
+            # Track OpenAI API call
+            track_openai_call("gpt-4", "chat", response.usage.prompt_tokens, response.usage.completion_tokens)
             
             answer = response.choices[0].message.content
             

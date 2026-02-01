@@ -11,6 +11,7 @@ from datetime import datetime
 import chromadb
 from openai import AsyncOpenAI
 from .base_agent import BaseAgent
+from utils.metrics import track_agent_execution, track_openai_call
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ class DuplicateDetectorAgent(BaseAgent):
             logger.error(f"Failed to initialize ticket collection: {e}")
             raise
     
+    @track_agent_execution
     async def process(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """
         Detect duplicate tickets for a new ticket

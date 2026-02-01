@@ -9,6 +9,7 @@ import logging
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 from .base_agent import BaseAgent
+from utils.metrics import track_agent_execution
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,7 @@ class SLAPredictorAgent(BaseAgent):
     def __init__(self):
         super().__init__(name="SLAPredictorAgent")
     
+    @track_agent_execution
     async def process(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """
         Predict SLA breach risk and timeline

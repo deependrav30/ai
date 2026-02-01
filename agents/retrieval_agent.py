@@ -8,6 +8,7 @@ Returns ranked results with relevance scores.
 from typing import Dict, Any, List
 import time
 from .base_agent import BaseAgent, logger
+from utils.metrics import track_agent_execution, MetricsContext
 
 # Import existing RAG retrieval
 import sys
@@ -26,6 +27,7 @@ class RetrievalAgent(BaseAgent):
         super().__init__("RetrievalAgent")
         self.top_k = 5  # Number of results to retrieve
     
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Search knowledge base for relevant documents.

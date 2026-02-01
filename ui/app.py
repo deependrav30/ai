@@ -2,12 +2,24 @@ import streamlit as st
 import os
 from datetime import datetime
 
-
-
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from rag.rag_workflow import index_document, retrieval
+
+# Initialize metrics server (runs in background thread)
+try:
+    from utils.metrics_server import start_metrics_server
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    
+    # Start metrics server on port 8000 (only once)
+    if 'metrics_server_started' not in st.session_state:
+        start_metrics_server(port=8000)
+        st.session_state['metrics_server_started'] = True
+        logging.info("Metrics server started at http://localhost:8000/metrics")
+except Exception as e:
+    logging.warning(f"Failed to start metrics server: {e}")
 
 st.set_page_config(page_title="RAG System - Home", layout="wide", page_icon="📚")
 

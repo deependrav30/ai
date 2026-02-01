@@ -13,6 +13,7 @@ import time
 import os
 from openai import OpenAI
 from .base_agent import BaseAgent, logger
+from utils.metrics import track_agent_execution, track_openai_call
 
 
 class ReasoningAgent(BaseAgent):
@@ -50,6 +51,7 @@ Your output should include:
 Provide structured, actionable analysis that helps resolve the ticket efficiently.
 """
     
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Analyze and correlate information to generate insights.
@@ -87,6 +89,9 @@ Provide structured, actionable analysis that helps resolve the ticket efficientl
                 temperature=0.4,  # Moderate creativity for reasoning
                 max_tokens=800
             )
+            
+            # Track OpenAI API call
+            track_openai_call("gpt-4", "chat", response.usage.prompt_tokens, response.usage.completion_tokens)
             
             reasoning = response.choices[0].message.content
             

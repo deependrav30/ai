@@ -15,6 +15,7 @@ import sqlite3
 import json
 from datetime import datetime
 from .base_agent import BaseAgent, logger
+from utils.metrics import track_agent_execution, MetricsContext
 
 # Import existing chat storage for episodic memory
 import sys
@@ -126,6 +127,7 @@ class MemoryAgent(BaseAgent):
         conn.close()
         logger.info("✓ Episodic memory using SQLite fallback")
     
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Search past tickets and store working memory.

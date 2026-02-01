@@ -14,6 +14,7 @@ import time
 from .base_agent import BaseAgent, logger
 from .general_chatbot import GeneralChatbot
 from .intent_agent import IntentAgent
+from utils.metrics import track_agent_execution, workflow_executions_total, workflow_duration_seconds
 
 
 class OrchestratorAgent(BaseAgent):
@@ -27,6 +28,7 @@ class OrchestratorAgent(BaseAgent):
         self.agents = agents
         self.general_chatbot = GeneralChatbot()
         
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main orchestration logic.

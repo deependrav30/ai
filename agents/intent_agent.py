@@ -19,6 +19,7 @@ import time
 import re
 from openai import OpenAI
 from .base_agent import BaseAgent, logger
+from utils.metrics import track_agent_execution, track_openai_call
 
 
 class IntentAgent(BaseAgent):
@@ -200,6 +201,7 @@ Output: {
         
         return predicted, confidence, matched_kws
     
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Classify ticket intent and characteristics.
@@ -245,6 +247,9 @@ Output: {
                 max_tokens=500,
                 response_format={"type": "json_object"}  # Ensure JSON response
             )
+            
+            # Track OpenAI API call
+            track_openai_call("gpt-4o-mini", "chat", response.usage.prompt_tokens, response.usage.completion_tokens)
             
             # Parse JSON response
             classification = json.loads(response.choices[0].message.content)

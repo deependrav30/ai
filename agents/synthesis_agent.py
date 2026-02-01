@@ -13,6 +13,7 @@ import time
 import os
 from openai import OpenAI
 from .base_agent import BaseAgent, logger
+from utils.metrics import track_agent_execution, track_openai_call
 
 
 class SynthesisAgent(BaseAgent):
@@ -50,6 +51,7 @@ Always maintain a helpful, solution-oriented tone.
 Include source citations from knowledge base when referencing documentation.
 """
     
+    @track_agent_execution
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate final response from all agent outputs.
@@ -81,6 +83,9 @@ Include source citations from knowledge base when referencing documentation.
                 temperature=0.5,  # Balanced creativity
                 max_tokens=1000
             )
+            
+            # Track OpenAI API call
+            track_openai_call("gpt-4", "chat", response.usage.prompt_tokens, response.usage.completion_tokens)
             
             final_response = response.choices[0].message.content
             

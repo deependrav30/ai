@@ -49,11 +49,11 @@ scrape_configs:
           service: 'chromadb'
           role: 'semantic-memory'
 
-  # AI Agent Application Metrics (future: add metrics endpoint to Streamlit app)
-  # - job_name: 'ai-agents'
-  #   metrics_path: '/metrics'
-  #   static_configs:
-  #     - targets: ['host.docker.internal:8501']
-  #       labels:
-  #         service: 'streamlit-app'
-  #         component: 'ai-agents'
+  # AI Agent Application Metrics - Streamlit app exposes metrics on port 8000
+  - job_name: 'ai-agents'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+        labels:
+          service: 'streamlit-app'
+          component: 'ai-agents'
