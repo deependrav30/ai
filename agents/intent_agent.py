@@ -9,11 +9,14 @@ Uses GPT-4o-mini to classify tickets by:
 - SLA risk assessment
 - Team routing
 - Confidence score (0.0 to 1.0)
+
+Enhanced with keyword matching for better accuracy.
 """
 from typing import Dict, Any
 import os
 import json
 import time
+import re
 from openai import OpenAI
 from .base_agent import BaseAgent, logger
 
@@ -22,7 +25,59 @@ class IntentAgent(BaseAgent):
     """
     Classifies user intent and ticket characteristics using GPT-4o-mini.
     Fast, cost-effective, and accurate for structured classification.
+    Enhanced with keyword matching for improved accuracy.
     """
+    
+    # Keyword patterns for intent detection
+    INTENT_KEYWORDS = {
+        'incident': [
+            'down', 'outage', 'not working', 'broken', 'failed', 'error',
+            'crashed', 'unavailable', 'timeout', 'slow', 'degraded',
+            'returning 500', 'returning 404', '401 error', '403 error',
+            'api error', 'service error', 'connection failed',
+            'cannot access', 'unable to', 'users affected', 'production issue'
+        ],
+        'service_request': [
+            'create', 'add', 'provision', 'setup', 'configure', 'install',
+            'need access to', 'request access', 'grant permission',
+            'reset password', 'unlock account', 'new user', 'new account'
+        ],
+        'question': [
+            'how do i', 'how to', 'what is', 'what does', 'why is',
+            'can you explain', 'where can i find', 'is it possible',
+            'documentation', 'guide', 'help me understand'
+        ],
+        'problem': [
+            'keep getting', 'repeatedly', 'frequently', 'intermittent',
+            'sometimes works', 'root cause', 'pattern', 'trend'
+        ],
+        'change': [
+            'deploy', 'release', 'rollout', 'migration', 'maintenance window',
+            'scheduled change'
+        ]
+    }
+    
+    # Urgency indicators
+    URGENCY_KEYWORDS = {
+        'critical': [
+            'production down', 'all users affected', 'revenue impact',
+            'customer facing', 'complete outage', 'critical', 'emergency',
+            'immediate', 'sev 1', 'p0', 'urgent urgent', 'right now'
+        ],
+        'high': [
+            'multiple users', 'important feature', 'major issue',
+            'blocking', 'preventing work', 'cannot proceed',
+            'sev 2', 'p1', 'soon', 'today'
+        ],
+        'medium': [
+            'some users', 'workaround available', 'not blocking',
+            'sev 3', 'p2', 'normal priority', 'moderate'
+        ],
+        'low': [
+            'cosmetic', 'nice to have', 'enhancement', 'when possible',
+            'sev 4', 'p3', 'low priority', 'eventually'
+        ]
+    }
     
     def __init__(self):
         super().__init__("IntentAgent")
@@ -119,9 +174,36 @@ Output: {
 }
 """
     
+    def _keyword_match(self, text: str, keywords_dict: dict) -> tuple:
+        """
+        Match keywords against text to predict classification.
+        
+        Returns:
+            (predicted_value, confidence, matched_keywords)
+        """
+        text_lower = text.lower()
+        scores = {}
+        
+        for value, keywords in keywords_dict.items():
+            matched = [kw for kw in keywords if kw in text_lower]
+            scores[value] = len(matched)
+        
+        if not scores or max(scores.values()) == 0:
+            return None, 0.0, []
+        
+        predicted = max(scores, key=scores.get)
+        # Normalize confidence: more matches = higher confidence
+        confidence = min(scores[predicted] / 3, 0.9)  # Cap at 0.9
+        
+        # Get matched keywords
+        matched_kws = [kw for kw in keywords_dict[predicted] if kw in text_lower]
+        
+        return predicted, confidence, matched_kws
+    
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Classify ticket intent and characteristics.
+        Enhanced with keyword matching for improved accuracy.
         
         Args:
             state: Must contain 'user_input'
@@ -141,12 +223,23 @@ Output: {
             
             logger.info(f"Classifying intent for: {user_input[:100]}...")
             
+            # Pre-classify using keyword matching
+            intent_hint, intent_conf, intent_kws = self._keyword_match(user_input, self.INTENT_KEYWORDS)
+            urgency_hint, urgency_conf, urgency_kws = self._keyword_match(user_input, self.URGENCY_KEYWORDS)
+            
+            # Add hints to the prompt if confidence is high
+            enhanced_prompt = user_input
+            if intent_hint and intent_conf > 0.3:
+                enhanced_prompt += f"\n\n[Keyword Analysis Hint: Detected intent='{intent_hint}' with {len(intent_kws)} matching keywords: {', '.join(intent_kws[:3])}]"
+            if urgency_hint and urgency_conf > 0.3:
+                enhanced_prompt += f"\n[Urgency Hint: Detected urgency='{urgency_hint}' with {len(urgency_kws)} matching keywords: {', '.join(urgency_kws[:3])}]"
+            
             # Call GPT-4o-mini for classification
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",  # Fast and cost-effective
                 messages=[
                     {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": user_input}
+                    {"role": "user", "content": enhanced_prompt}
                 ],
                 temperature=0.3,  # Low temperature for consistent classification
                 max_tokens=500,
