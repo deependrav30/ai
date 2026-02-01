@@ -116,6 +116,11 @@ Reformulated Standalone Question:"""
 def process_chat_message(user_input: str):
     """Process user message and generate response with RAG."""
     
+    # Initialize variables
+    sources = None
+    response = None
+    results = []
+    
     # Save user message to storage
     chat_storage.save_message(st.session_state.session_id, 'user', user_input)
     
@@ -191,9 +196,11 @@ def process_chat_message(user_input: str):
                 status_placeholder.info("🤖 Generating answer with GPT-4...")
                 try:
                     response = generate_response(reformulated_query, results)
+                    sources = results  # Set sources when response is generated successfully
                 except Exception as e:
                     print(f"Response generation error in chat: {str(e)}")
                     response = "❌ Unable to generate response. Please try again or contact support if the issue persists."
+                    sources = None
                 status_placeholder.empty()
         except Exception as e:
             status_placeholder.empty()
