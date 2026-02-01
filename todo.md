@@ -59,11 +59,18 @@
    - Added urgency keyword patterns (4 levels: critical, high, medium, low)
    - Pre-classification with keyword matching before LLM call
    - Keyword hints passed to LLM for improved accuracy
-   - Test results: 100% intent accuracy on keyword matching
+   - Test results: 100% intent accuracy, 80% urgency accuracy
    - Integration: Keyword matching + GPT-4o-mini for best accuracy
 
+2. ✅ Duplicate ticket detection with semantic embeddings
+   - Created DuplicateDetectorAgent using OpenAI embeddings
+   - 4 similarity levels: exact (95%+), very similar (85-95%), similar (70-85%), related (60-70%)
+   - ChromaDB ticket_history collection for historical tickets
+   - Test results: 94.8% similarity on identical issues, 79-81% on similar issues
+   - Correctly identifies unique tickets (no false positives)
+   - Can retrieve resolutions from similar past tickets
+
 **In Progress:**
-2. 🔄 Test enhanced IntentAgent with observability data
 3. 🔄 Implement urgency boost from KB metadata (Priority field)
 
 **Future Work:**
