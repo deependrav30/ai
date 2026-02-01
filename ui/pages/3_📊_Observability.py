@@ -68,7 +68,7 @@ with st.sidebar:
     
     st.divider()
     
-    refresh = st.button("🔄 Refresh Data", use_container_width=True)
+    refresh = st.button("🔄 Refresh Data", width="stretch")
 
 # Main dashboard layout
 tab1, tab2, tab3, tab4 = st.tabs(["📈 Overview", "🤖 Agents", "📝 Execution Logs", "⚠️ Incidents"])
@@ -142,7 +142,7 @@ with tab1:
             color_discrete_sequence=px.colors.sequential.RdBu
         )
         fig.update_traces(textposition='inside', textinfo='percent+label')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     with col2:
         st.subheader("📈 Confidence Score Distribution")
@@ -161,14 +161,14 @@ with tab1:
             color_continuous_scale='Viridis'
         )
         fig.update_layout(showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     # Timeline
     st.subheader("⏱️ Response Time Trend (Last 24 Hours)")
     
     # Mock timeline data
     import numpy as np
-    hours = pd.date_range(end=datetime.now(), periods=24, freq='H')
+    hours = pd.date_range(end=datetime.now(), periods=24, freq='h')
     response_times = np.random.normal(2.5, 0.5, 24)
     
     timeline_df = pd.DataFrame({
@@ -183,7 +183,7 @@ with tab1:
         markers=True
     )
     fig.add_hline(y=3.0, line_dash="dash", line_color="red", annotation_text="SLA Target")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with tab2:
     st.header("🤖 Agent Performance")
@@ -229,7 +229,7 @@ with tab2:
         color='Avg Time (s)',
         color_continuous_scale='Blues'
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with tab3:
     st.header("📝 Execution Logs")
@@ -343,7 +343,7 @@ with tab4:
         color='Count',
         color_continuous_scale='Reds'
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # Footer
 st.markdown("---")

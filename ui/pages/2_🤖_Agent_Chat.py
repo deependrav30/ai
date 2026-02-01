@@ -99,7 +99,7 @@ with st.sidebar:
     st.header("📋 Session Management")
     
     # Start new session
-    if st.button("➕ New Session", use_container_width=True):
+    if st.button("➕ New Session", width="stretch"):
         session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         chat_storage.create_session(session_id)
         st.session_state.session_id = session_id
@@ -122,7 +122,7 @@ with st.sidebar:
                 if st.button(
                     session_label, 
                     key=f"load_{session['session_id']}",
-                    use_container_width=True
+                    width="stretch"
                 ):
                     st.session_state.session_id = session['session_id']
                     # Load messages and convert to chat history format
@@ -149,7 +149,7 @@ with st.sidebar:
     
     # Export training data
     st.subheader("🎓 Training Data")
-    if st.button("📥 Export Training Data", use_container_width=True):
+    if st.button("📥 Export Training Data", width="stretch"):
         filename = chat_storage.export_training_data()
         if filename:
             st.success(f"Exported to {filename}")

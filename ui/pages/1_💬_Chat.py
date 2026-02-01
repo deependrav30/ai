@@ -265,7 +265,7 @@ with st.sidebar:
     st.header("💬 Chat Sessions")
     
     # New chat button
-    if st.button("➕ New Chat Session", use_container_width=True, type="primary"):
+    if st.button("➕ New Chat Session", width="stretch", type="primary"):
         try:
             st.session_state.chat_started = True
             st.session_state.chat_history = []
@@ -298,7 +298,7 @@ with st.sidebar:
                 if st.button(
                     f"💬 {session['title'][:25]}...\n📅 {session_date} • {session['message_count']} msgs",
                     key=f"load_{session['session_id']}",
-                    use_container_width=True
+                    width="stretch"
                 ):
                     try:
                         # Load session
@@ -343,7 +343,7 @@ with st.sidebar:
     st.subheader("🎓 Training Data")
     st.caption("Export user interactions for system improvement")
     
-    if st.button("📥 Export Training Data", use_container_width=True):
+    if st.button("📥 Export Training Data", width="stretch"):
         try:
             output_file = f"training_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             if chat_storage.export_training_data(output_file):
@@ -368,7 +368,7 @@ with st.sidebar:
         st.metric("Session ID", st.session_state.session_id[:12])
         st.metric("Messages", len(st.session_state.chat_history) * 2)
         
-        if st.button("⏹️ End Session", use_container_width=True):
+        if st.button("⏹️ End Session", width="stretch"):
             st.session_state.chat_started = False
             st.session_state.chat_history = []
             st.session_state.session_id = None
