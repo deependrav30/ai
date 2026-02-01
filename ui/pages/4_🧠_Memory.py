@@ -169,8 +169,8 @@ with tab2:
             col1, col2 = st.columns([3, 1])
             
             with col1:
-                st.write(f"**Issue:** {user_input[:300]}")
-                st.write(f"**Resolution:** {resolution[:300] if resolution else 'N/A'}")
+                st.write(f"**Issue:** {str(user_input)[:300]}")
+                st.write(f"**Resolution:** {str(resolution)[:300] if resolution else 'N/A'}")
                 
                 # Metadata - convert confidence to float for formatting
                 try:
@@ -182,7 +182,8 @@ with tab2:
             
             with col2:
                 st.write(f"**Timestamp:**")
-                st.code(timestamp[:19] if timestamp else 'N/A')
+                timestamp_str = str(timestamp) if timestamp else 'N/A'
+                st.code(timestamp_str[:19] if len(timestamp_str) >= 19 else timestamp_str)
                 
                 if st.button("🗑️ Delete", key=f"delete_{ticket_id}"):
                     cursor.execute("DELETE FROM past_tickets WHERE ticket_id = ?", (ticket_id,))
