@@ -172,8 +172,13 @@ with tab2:
                 st.write(f"**Issue:** {user_input[:300]}")
                 st.write(f"**Resolution:** {resolution[:300] if resolution else 'N/A'}")
                 
-                # Metadata
-                st.caption(f"Category: {category} | Outcome: {outcome} | Confidence: {confidence:.0%}")
+                # Metadata - convert confidence to float for formatting
+                try:
+                    conf_value = float(confidence) if confidence else 0.0
+                    conf_display = f"{conf_value:.0%}"
+                except (ValueError, TypeError):
+                    conf_display = str(confidence)
+                st.caption(f"Category: {category} | Outcome: {outcome} | Confidence: {conf_display}")
             
             with col2:
                 st.write(f"**Timestamp:**")
