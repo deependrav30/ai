@@ -9,11 +9,11 @@ from typing import Dict, Any, List
 import time
 from .base_agent import BaseAgent, logger
 
-# Import existing RAG workflow
+# Import existing RAG retrieval
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rag.rag_workflow import query_rag
+from rag.rag_workflow import retrieval
 
 
 class RetrievalAgent(BaseAgent):
@@ -53,9 +53,8 @@ class RetrievalAgent(BaseAgent):
             
             logger.info(f"Searching knowledge base for: {search_query[:100]}...")
             
-            # Use retrieval module directly instead of query_rag wrapper
-            from rag.retrieval import retrieval
-            results = retrieval.retrieve(search_query, top_k=self.top_k)
+            # Use retrieval module directly (already imported at top of file)
+            results = retrieval.retrieve(search_query)
             
             # Extract documents and metadata
             retrieved_docs = []
@@ -63,11 +62,18 @@ class RetrievalAgent(BaseAgent):
             
             if results:
                 for result in results:
+                    # Retrieval pipeline returns 'chunk' field, map to 'content' for agents
+                    chunk_text = result.get("chunk", result.get("chunk_text", ""))
+                    metadata = result.get("metadata", {})
+                    
+                    # Extract source from metadata if available
+                    source = metadata.get("file_name", metadata.get("Timestamp", "unknown"))
+                    
                     retrieved_docs.append({
-                        "content": result.get("content", ""),
-                        "source": result.get("source", "unknown"),
+                        "content": chunk_text,
+                        "source": source,
                         "score": result.get("score", 0.0),
-                        "metadata": result.get("metadata", {})
+                        "metadata": metadata
                     })
                     doc_scores.append(result.get("score", 0.0))
             

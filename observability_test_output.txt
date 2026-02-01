@@ -194,3 +194,468 @@ INFO:agents.base_agent:Found 1 similar past tickets
 INFO:agents.base_agent:MemoryAgent executed in 0.004s
 INFO:agents.base_agent:Executing ReasoningAgent...
 INFO:agents.base_agent:Generating reasoning and insights...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:ReasoningAgent confidence: 0.90, overall: 0.30
+INFO:agents.base_agent:Reasoning complete: 1. Pattern Analysis: This appears to be a recurring service request, likely due to new team members ...
+INFO:agents.base_agent:ReasoningAgent executed in 12.612s
+INFO:agents.base_agent:Executing SynthesisAgent...
+INFO:agents.base_agent:Generating final response...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:Response generated: Subject: Re: Request for Production Database Access
+
+Dear User,
+
+Thank you for your request. I under...
+INFO:agents.base_agent:SynthesisAgent executed in 5.302s
+INFO:agents.base_agent:Executing GuardrailsAgent...
+INFO:agents.base_agent:Running safety guardrails...
+INFO:agents.base_agent:FLAGGED for human review: low confidence
+INFO:agents.base_agent:GuardrailsAgent confidence: 1.00, overall: 0.30
+INFO:agents.base_agent:GuardrailsAgent executed in 0.000s
+INFO:agents.base_agent:Serial execution completed
+INFO:agents.base_agent:Orchestrator completed in 19.82s
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_003
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: serial
+INFO:agents.base_agent:Agents: intent → retrieval → memory → reasoning → synthesis → guardrails
+INFO:agents.base_agent:
+Classification:
+INFO:agents.base_agent:  Intent: service_request
+INFO:agents.base_agent:  Category: security
+INFO:agents.base_agent:  Urgency: medium
+INFO:agents.base_agent:  Team: Security
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.30
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 1
+INFO:agents.base_agent:  Pattern Detected: True
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:  ⚠️  NEEDS HUMAN REVIEW
+INFO:agents.base_agent:
+Response: Subject: Re: Request for Production Database Access
+
+Dear User,
+
+Thank you for your request. I understand that you need access to our production database for a new team member. We appreciate you reach...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Stored ticket in episodic memory
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_004
+INFO:agents.base_agent:Input: Database performance degrading over past week, queries taking 10x longer...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: Database performance degrading over past week, queries taking 10x longer...
+INFO:agents.base_agent:Routing to multi-agent system
+INFO:agents.base_agent:Using SERIAL execution (default)
+INFO:agents.base_agent:Starting SERIAL execution
+INFO:agents.base_agent:Executing IntentAgent...
+INFO:agents.base_agent:Classifying intent for: Database performance degrading over past week, queries taking 10x longer...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:IntentAgent confidence: 0.90, overall: 0.90
+INFO:agents.base_agent:Classification: problem, medium, confidence=0.90
+INFO:agents.base_agent:IntentAgent executed in 2.369s
+INFO:agents.base_agent:Executing RetrievalAgent...
+INFO:agents.base_agent:Searching knowledge base for: database problem Database performance degrading over past week, queries taking 10x longer...
+ERROR:agents.base_agent:RetrievalAgent error: query_rag() got an unexpected keyword argument 'top_k'
+INFO:agents.base_agent:RetrievalAgent confidence: 0.30, overall: 0.30
+INFO:agents.base_agent:Executing MemoryAgent...
+INFO:agents.base_agent:Stored working memory in Redis for task_1769935704.09815
+INFO:agents.base_agent:Retrieved 0 tickets from PostgreSQL
+INFO:agents.base_agent:MemoryAgent confidence: 0.60, overall: 0.30
+INFO:agents.base_agent:Found 0 similar past tickets
+INFO:agents.base_agent:MemoryAgent executed in 0.007s
+INFO:agents.base_agent:Executing ReasoningAgent...
+INFO:agents.base_agent:Generating reasoning and insights...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:ReasoningAgent confidence: 0.75, overall: 0.30
+INFO:agents.base_agent:Reasoning complete: PATTERN ANALYSIS:
+This issue does not appear to be recurring based on the information provided. Howe...
+INFO:agents.base_agent:ReasoningAgent executed in 10.474s
+INFO:agents.base_agent:Executing SynthesisAgent...
+INFO:agents.base_agent:Generating final response...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:Response generated: Subject: Re: Database Performance Degradation
+
+Dear User,
+
+Thank you for bringing this issue to our ...
+INFO:agents.base_agent:SynthesisAgent executed in 17.467s
+INFO:agents.base_agent:Executing GuardrailsAgent...
+INFO:agents.base_agent:Running safety guardrails...
+INFO:agents.base_agent:FLAGGED for human review: low confidence
+INFO:agents.base_agent:GuardrailsAgent confidence: 1.00, overall: 0.30
+INFO:agents.base_agent:GuardrailsAgent executed in 0.000s
+INFO:agents.base_agent:Serial execution completed
+INFO:agents.base_agent:Orchestrator completed in 30.32s
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_004
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: serial
+INFO:agents.base_agent:Agents: intent → retrieval → memory → reasoning → synthesis → guardrails
+INFO:agents.base_agent:
+Classification:
+INFO:agents.base_agent:  Intent: problem
+INFO:agents.base_agent:  Category: database
+INFO:agents.base_agent:  Urgency: medium
+INFO:agents.base_agent:  Team: Database
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.30
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 0
+INFO:agents.base_agent:  Pattern Detected: True
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:  ⚠️  NEEDS HUMAN REVIEW
+INFO:agents.base_agent:
+Response: Subject: Re: Database Performance Degradation
+
+Dear User,
+
+Thank you for bringing this issue to our attention. We understand that you have been experiencing a degradation in database performance over ...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Stored ticket in episodic memory
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_005
+INFO:agents.base_agent:Input: Need to upgrade Node.js version from 16 to 18 in production...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: Need to upgrade Node.js version from 16 to 18 in production...
+INFO:agents.base_agent:Routing to multi-agent system
+INFO:agents.base_agent:Using SERIAL execution (default)
+INFO:agents.base_agent:Starting SERIAL execution
+INFO:agents.base_agent:Executing IntentAgent...
+INFO:agents.base_agent:Classifying intent for: Need to upgrade Node.js version from 16 to 18 in production...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:IntentAgent confidence: 0.90, overall: 0.90
+INFO:agents.base_agent:Classification: change, medium, confidence=0.90
+INFO:agents.base_agent:IntentAgent executed in 1.709s
+INFO:agents.base_agent:Executing RetrievalAgent...
+INFO:agents.base_agent:Searching knowledge base for: application change Need to upgrade Node.js version from 16 to 18 in production...
+ERROR:agents.base_agent:RetrievalAgent error: query_rag() got an unexpected keyword argument 'top_k'
+INFO:agents.base_agent:RetrievalAgent confidence: 0.30, overall: 0.30
+INFO:agents.base_agent:Executing MemoryAgent...
+INFO:agents.base_agent:Stored working memory in Redis for task_1769935733.760596
+INFO:agents.base_agent:Retrieved 0 tickets from PostgreSQL
+INFO:agents.base_agent:MemoryAgent confidence: 0.60, overall: 0.30
+INFO:agents.base_agent:Found 0 similar past tickets
+INFO:agents.base_agent:MemoryAgent executed in 0.007s
+INFO:agents.base_agent:Executing ReasoningAgent...
+INFO:agents.base_agent:Generating reasoning and insights...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:ReasoningAgent confidence: 0.90, overall: 0.30
+INFO:agents.base_agent:Reasoning complete: PATTERN ANALYSIS:
+This is not a recurring issue but rather a change request. However, there is a tre...
+INFO:agents.base_agent:ReasoningAgent executed in 13.913s
+INFO:agents.base_agent:Executing SynthesisAgent...
+INFO:agents.base_agent:Generating final response...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:Response generated: Subject: Re: Request for Node.js Upgrade from Version 16 to 18 in Production
+
+Dear User,
+
+Thank you ...
+INFO:agents.base_agent:SynthesisAgent executed in 13.564s
+INFO:agents.base_agent:Executing GuardrailsAgent...
+INFO:agents.base_agent:Running safety guardrails...
+INFO:agents.base_agent:FLAGGED for human review: low confidence
+INFO:agents.base_agent:GuardrailsAgent confidence: 1.00, overall: 0.30
+INFO:agents.base_agent:GuardrailsAgent executed in 0.000s
+INFO:agents.base_agent:Serial execution completed
+INFO:agents.base_agent:Orchestrator completed in 29.19s
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_005
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: serial
+INFO:agents.base_agent:Agents: intent → retrieval → memory → reasoning → synthesis → guardrails
+INFO:agents.base_agent:
+Classification:
+INFO:agents.base_agent:  Intent: change
+INFO:agents.base_agent:  Category: application
+INFO:agents.base_agent:  Urgency: medium
+INFO:agents.base_agent:  Team: DevOps
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.30
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 0
+INFO:agents.base_agent:  Pattern Detected: True
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:  ⚠️  NEEDS HUMAN REVIEW
+INFO:agents.base_agent:
+Response: Subject: Re: Request for Node.js Upgrade from Version 16 to 18 in Production
+
+Dear User,
+
+Thank you for reaching out with your request to upgrade Node.js from version 16 to 18 in your production envir...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Stored ticket in episodic memory
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_006
+INFO:agents.base_agent:Input: What are your support hours?...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: What are your support hours?...
+INFO:agents.base_agent:Routing to general chatbot (no agent orchestration)
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:General chatbot response: Our support team is available 24/7 to assist you with any issues or concerns. Should you need immedi...
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_006
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: general_chat
+INFO:agents.base_agent:Agents: 
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.95
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 0
+INFO:agents.base_agent:  Pattern Detected: False
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:
+Response: Our support team is available 24/7 to assist you with any issues or concerns. Should you need immediate assistance, please provide details about your issue and I'll route it to our specialized support...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_007
+INFO:agents.base_agent:Input: Critical: Application crashed, all users unable to login...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: Critical: Application crashed, all users unable to login...
+INFO:agents.base_agent:Routing to multi-agent system
+INFO:agents.base_agent:Using SERIAL execution (default)
+INFO:agents.base_agent:Starting SERIAL execution
+INFO:agents.base_agent:Executing IntentAgent...
+INFO:agents.base_agent:Classifying intent for: Critical: Application crashed, all users unable to login...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:IntentAgent confidence: 0.97, overall: 0.97
+INFO:agents.base_agent:Classification: incident, critical, confidence=0.97
+INFO:agents.base_agent:IntentAgent executed in 2.336s
+INFO:agents.base_agent:Executing RetrievalAgent...
+INFO:agents.base_agent:Searching knowledge base for: application incident Critical: Application crashed, all users unable to login...
+ERROR:agents.base_agent:RetrievalAgent error: query_rag() got an unexpected keyword argument 'top_k'
+INFO:agents.base_agent:RetrievalAgent confidence: 0.30, overall: 0.30
+INFO:agents.base_agent:Executing MemoryAgent...
+INFO:agents.base_agent:Stored working memory in Redis for task_1769935765.479754
+INFO:agents.base_agent:Retrieved 0 tickets from PostgreSQL
+INFO:agents.base_agent:MemoryAgent confidence: 0.60, overall: 0.30
+INFO:agents.base_agent:Found 0 similar past tickets
+INFO:agents.base_agent:MemoryAgent executed in 0.008s
+INFO:agents.base_agent:Executing ReasoningAgent...
+INFO:agents.base_agent:Generating reasoning and insights...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:ReasoningAgent confidence: 0.75, overall: 0.30
+INFO:agents.base_agent:Reasoning complete: PATTERN ANALYSIS:
+Without past tickets or a history of similar incidents, it's challenging to determ...
+INFO:agents.base_agent:ReasoningAgent executed in 17.420s
+INFO:agents.base_agent:Executing SynthesisAgent...
+INFO:agents.base_agent:Generating final response...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:Response generated: Subject: Urgent: Application Crash - Immediate Action Underway
+
+Dear User,
+
+Thank you for bringing t...
+INFO:agents.base_agent:SynthesisAgent executed in 7.369s
+INFO:agents.base_agent:Executing GuardrailsAgent...
+INFO:agents.base_agent:Running safety guardrails...
+INFO:agents.base_agent:FLAGGED for human review: low confidence
+INFO:agents.base_agent:GuardrailsAgent confidence: 1.00, overall: 0.30
+INFO:agents.base_agent:GuardrailsAgent executed in 0.000s
+INFO:agents.base_agent:Serial execution completed
+INFO:agents.base_agent:Orchestrator completed in 27.14s
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_007
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: serial
+INFO:agents.base_agent:Agents: intent → retrieval → memory → reasoning → synthesis → guardrails
+INFO:agents.base_agent:
+Classification:
+INFO:agents.base_agent:  Intent: incident
+INFO:agents.base_agent:  Category: application
+INFO:agents.base_agent:  Urgency: critical
+INFO:agents.base_agent:  Team: Support
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.30
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 0
+INFO:agents.base_agent:  Pattern Detected: True
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:  ⚠️  NEEDS HUMAN REVIEW
+INFO:agents.base_agent:
+Response: Subject: Urgent: Application Crash - Immediate Action Underway
+
+Dear User,
+
+Thank you for bringing this critical issue to our attention. We understand that the application crash and subsequent inabili...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Stored ticket in episodic memory
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_008
+INFO:agents.base_agent:Input: Request VPN access for remote work...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: Request VPN access for remote work...
+INFO:agents.base_agent:Routing to multi-agent system
+INFO:agents.base_agent:Using SERIAL execution (default)
+INFO:agents.base_agent:Starting SERIAL execution
+INFO:agents.base_agent:Executing IntentAgent...
+INFO:agents.base_agent:Classifying intent for: Request VPN access for remote work...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:IntentAgent confidence: 0.90, overall: 0.90
+INFO:agents.base_agent:Classification: service_request, medium, confidence=0.90
+INFO:agents.base_agent:IntentAgent executed in 1.889s
+INFO:agents.base_agent:Executing RetrievalAgent...
+INFO:agents.base_agent:Searching knowledge base for: security service_request Request VPN access for remote work...
+ERROR:agents.base_agent:RetrievalAgent error: query_rag() got an unexpected keyword argument 'top_k'
+INFO:agents.base_agent:RetrievalAgent confidence: 0.30, overall: 0.30
+INFO:agents.base_agent:Executing MemoryAgent...
+INFO:agents.base_agent:Stored working memory in Redis for task_1769935792.175718
+INFO:agents.base_agent:Retrieved 1 tickets from PostgreSQL
+INFO:agents.base_agent:MemoryAgent confidence: 0.80, overall: 0.30
+INFO:agents.base_agent:Found 1 similar past tickets
+INFO:agents.base_agent:MemoryAgent executed in 0.018s
+INFO:agents.base_agent:Executing ReasoningAgent...
+INFO:agents.base_agent:Generating reasoning and insights...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:ReasoningAgent confidence: 0.75, overall: 0.30
+INFO:agents.base_agent:Reasoning complete: 1. Pattern Analysis:
+This is not a recurring issue based on the provided past ticket. However, it is...
+INFO:agents.base_agent:ReasoningAgent executed in 14.335s
+INFO:agents.base_agent:Executing SynthesisAgent...
+INFO:agents.base_agent:Generating final response...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:Response generated: Dear User,
+
+Thank you for reaching out to us with your request. I understand that you need VPN acces...
+INFO:agents.base_agent:SynthesisAgent executed in 14.483s
+INFO:agents.base_agent:Executing GuardrailsAgent...
+INFO:agents.base_agent:Running safety guardrails...
+INFO:agents.base_agent:FLAGGED for human review: low confidence
+INFO:agents.base_agent:GuardrailsAgent confidence: 1.00, overall: 0.30
+INFO:agents.base_agent:GuardrailsAgent executed in 0.000s
+INFO:agents.base_agent:Serial execution completed
+INFO:agents.base_agent:Orchestrator completed in 30.73s
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_008
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: serial
+INFO:agents.base_agent:Agents: intent → retrieval → memory → reasoning → synthesis → guardrails
+INFO:agents.base_agent:
+Classification:
+INFO:agents.base_agent:  Intent: service_request
+INFO:agents.base_agent:  Category: security
+INFO:agents.base_agent:  Urgency: medium
+INFO:agents.base_agent:  Team: Security
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.30
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 1
+INFO:agents.base_agent:  Pattern Detected: True
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:  ⚠️  NEEDS HUMAN REVIEW
+INFO:agents.base_agent:
+Response: Dear User,
+
+Thank you for reaching out to us with your request. I understand that you need VPN access to facilitate your remote work. This is indeed a common requirement in our current work environmen...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Stored ticket in episodic memory
+======================================================================
+OBSERVABILITY DASHBOARD DATA GENERATION TEST
+======================================================================
+
+1. Initializing AgentWorkflow...
+   ✓ Workflow initialized
+
+2. Processing 8 test queries...
+----------------------------------------------------------------------
+
+[1/8] Processing: OBS_TEST_001
+   Query: Payment API returning 500 errors affecting multiple customer...
+   ✓ Intent: incident | Urgency: critical | Confidence: 0.30
+   ✓ Mode: N/A | Escalate: False
+
+[2/8] Processing: OBS_TEST_002
+   Query: How do I reset my password?...
+   ✓ Intent: question | Urgency: low | Confidence: 0.30
+   ✓ Mode: N/A | Escalate: False
+
+[3/8] Processing: OBS_TEST_003
+   Query: Request access to production database for new team member...
+   ✓ Intent: service_request | Urgency: medium | Confidence: 0.30
+   ✓ Mode: N/A | Escalate: False
+
+[4/8] Processing: OBS_TEST_004
+   Query: Database performance degrading over past week, queries takin...
+   ✓ Intent: problem | Urgency: medium | Confidence: 0.30
+   ✓ Mode: N/A | Escalate: False
+
+[5/8] Processing: OBS_TEST_005
+   Query: Need to upgrade Node.js version from 16 to 18 in production...
+   ✓ Intent: change | Urgency: medium | Confidence: 0.30
+   ✓ Mode: N/A | Escalate: False
+
+[6/8] Processing: OBS_TEST_006
+   Query: What are your support hours?...
+   ✓ Intent: N/A | Urgency: N/A | Confidence: 0.95
+   ✓ Mode: N/A | Escalate: False
+
+[7/8] Processing: OBS_TEST_007
+   Query: Critical: Application crashed, all users unable to login...
+   ✓ Intent: incident | Urgency: critical | Confidence: 0.30
+   ✓ Mode: N/A | Escalate: False
+
+[8/8] Processing: OBS_TEST_008
+   Query: Request VPN access for remote work...
+   ✓ Intent: service_request | Urgency: medium | Confidence: 0.30
+   ✓ Mode: N/A | Escalate: False
+
+======================================================================
+TEST SUMMARY
+======================================================================
+
+✓ Successful: 8/8
+❌ Failed: 0/8
+
+📊 Classification Accuracy:
+   Intent: 7/8 (88%)
+   Urgency: 4/8 (50%)
+
+📈 Distribution:
+   Intents: {'incident': 2, 'question': 1, 'service_request': 2, 'problem': 1, 'change': 1, 'N/A': 1}
+   Urgencies: {'critical': 2, 'low': 1, 'medium': 4, 'N/A': 1}
+   Execution Modes: {'N/A': 8}
+   Escalations: 0/8 (0%)
+   Avg Confidence: 0.38
+
+======================================================================
+NEXT STEPS
+======================================================================
+
+1. Open Streamlit UI: http://localhost:8501
+2. Navigate to '📊 Observability' page
+3. Verify metrics are displaying correctly:
+   - Total requests should show 8 (or more)
+   - Charts should show distribution of intents, urgencies, modes
+   - Execution logs should show all test tickets
+
+✓ Test data generation complete!
+======================================================================
