@@ -47,7 +47,8 @@ class OrchestratorAgent(BaseAgent):
         user_input = state.get("user_input", "")
         
         try:
-            logger.info(f"Orchestrator processing: {user_input[:100]}...")
+            input_text = str(user_input) if user_input else ""
+            logger.info(f"Orchestrator processing: {input_text[:100]}...")
             
             # Step 1: Check if general chatbot should handle
             if self.general_chatbot.is_general_query(user_input):

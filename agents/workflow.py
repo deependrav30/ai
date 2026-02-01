@@ -65,7 +65,8 @@ class AgentWorkflow:
         
         logger.info(f"\n{'='*60}")
         logger.info(f"Processing Ticket: {state['ticket_id']}")
-        logger.info(f"Input: {user_input[:100]}...")
+        input_text = str(state.get('user_input', ''))
+        logger.info(f"Input: {input_text[:100]}...")
         logger.info(f"{'='*60}\n")
         
         try:
