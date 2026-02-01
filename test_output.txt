@@ -1,0 +1,103 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.4, pytest-9.0.2, pluggy-1.6.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/deependraverma/Documents/Projects/AI/ai
+configfile: pyproject.toml
+plugins: anyio-4.12.1, langsmith-0.6.7, asyncio-1.3.0, cov-7.0.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 60 items
+
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_initialization PASSED [  1%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_categorize_duplicates_exact PASSED [  3%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_categorize_duplicates_very_similar PASSED [  5%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_categorize_duplicates_similar PASSED [  6%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_categorize_duplicates_related PASSED [  8%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_categorize_duplicates_mixed PASSED [ 10%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_get_duplicate_summary_none PASSED [ 11%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_get_duplicate_summary_exact PASSED [ 13%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_get_duplicate_summary_multiple_levels PASSED [ 15%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_process_no_duplicates PASSED [ 16%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_process_with_duplicates PASSED [ 18%]
+tests/test_duplicate_detector.py::TestDuplicateDetectorAgent::test_add_ticket_to_history PASSED [ 20%]
+tests/test_intent_agent.py::TestIntentAgent::test_initialization PASSED  [ 21%]
+tests/test_intent_agent.py::TestIntentAgent::test_keyword_match_incident PASSED [ 23%]
+tests/test_intent_agent.py::TestIntentAgent::test_keyword_match_service_request PASSED [ 25%]
+tests/test_intent_agent.py::TestIntentAgent::test_keyword_match_question PASSED [ 26%]
+tests/test_intent_agent.py::TestIntentAgent::test_keyword_match_urgency_critical PASSED [ 28%]
+tests/test_intent_agent.py::TestIntentAgent::test_keyword_match_urgency_low PASSED [ 30%]
+tests/test_intent_agent.py::TestIntentAgent::test_process_incident PASSED [ 31%]
+tests/test_intent_agent.py::TestIntentAgent::test_process_question PASSED [ 33%]
+tests/test_intent_agent.py::TestIntentAgent::test_process_service_request PASSED [ 35%]
+tests/test_intent_agent.py::TestIntentAgent::test_keyword_coverage PASSED [ 36%]
+tests/test_intent_agent.py::TestIntentAgent::test_keyword_match_edge_cases PASSED [ 38%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_initialization PASSED [ 40%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_sla_windows_critical PASSED [ 41%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_sla_windows_high PASSED [ 43%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_sla_windows_medium PASSED [ 45%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_sla_windows_low PASSED [ 46%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_complexity_multipliers PASSED [ 48%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_process_critical_just_created PASSED [ 50%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_process_with_complexity_simple PASSED [ 51%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_process_with_complexity_very_complex PASSED [ 53%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_process_with_historical_data PASSED [ 55%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_process_approaching_deadline PASSED [ 56%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_process_breached_sla PASSED [ 58%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_calculate_breach_risk_safe PASSED [ 60%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_calculate_breach_risk_warning PASSED [ 61%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_calculate_breach_risk_danger PASSED [ 63%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_calculate_breach_risk_critical_breached PASSED [ 65%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_generate_recommendations_critical PASSED [ 66%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_generate_recommendations_safe PASSED [ 68%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_calculate_avg_resolution_time PASSED [ 70%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_calculate_avg_resolution_time_from_timestamps PASSED [ 71%]
+tests/test_sla_predictor.py::TestSLAPredictorAgent::test_format_sla_summary PASSED [ 73%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_initialization PASSED [ 75%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_process_ticket_basic PASSED [ 76%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_process_ticket_classification PASSED [ 78%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_process_ticket_duplicate_detection PASSED [ 80%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_process_ticket_sla_prediction PASSED [ 81%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_enhance_ticket_processing PASSED [ 83%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_workflow_error_handling PASSED [ 85%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_workflow_generates_ticket_id PASSED [ 86%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_workflow_metrics PASSED [ 88%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_multiple_tickets_sequential PASSED [ 90%]
+tests/test_workflow_integration.py::TestAgentWorkflow::test_workflow_confidence_tracking PASSED [ 91%]
+tests/test_workflow_integration.py::TestWorkflowIntegrationScenarios::test_critical_incident_flow PASSED [ 93%]
+tests/test_workflow_integration.py::TestWorkflowIntegrationScenarios::test_simple_question_flow PASSED [ 95%]
+tests/test_workflow_integration.py::TestWorkflowIntegrationScenarios::test_service_request_flow PASSED [ 96%]
+tests/test_workflow_integration.py::TestWorkflowIntegrationScenarios::test_duplicate_ticket_scenario PASSED [ 98%]
+tests/test_workflow_integration.py::TestWorkflowIntegrationScenarios::test_sla_at_risk_scenario PASSED [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.12.4-final-0 _______________
+
+Name                                  Stmts   Miss  Cover   Missing
+-------------------------------------------------------------------
+agents/__init__.py                       10      0   100%
+agents/base_agent.py                     36      2    94%   90-91
+agents/duplicate_detector_agent.py      100     19    81%   43-45, 97-99, 109-111, 130-131, 138, 155-157, 219-221, 238
+agents/general_chatbot.py                42      9    79%   57, 68, 122-127, 140
+agents/guardrails_agent.py              102     54    47%   94-96, 100, 113-119, 137-139, 153-184, 200-206, 225-240, 252-268, 278-287
+agents/intent_agent.py                   79     24    70%   220-222, 273-290, 294-299
+agents/memory_agent.py                  174     78    55%   29-31, 37-39, 64-65, 78-80, 98-127, 185-191, 219-224, 269-312, 350-359, 365-376, 380-388
+agents/orchestrator_agent.py            108     54    50%   66, 68, 79-83, 105-106, 150-153, 181-220, 240-250, 254-255, 260-261, 266-270
+agents/reasoning_agent.py               109     19    83%   72-73, 114-119, 226-233, 245-249
+agents/retrieval_agent.py                79     29    63%   47-49, 90, 102-108, 144-158, 162-170
+agents/sla_predictor_agent.py           105     11    90%   166-168, 206, 221, 241, 274-278
+agents/synthesis_agent.py                95     20    79%   107-116, 222-240, 257-264
+agents/workflow.py                       98     12    88%   93-97, 142-145, 179, 207-209
+database/chat_storage.py                123     97    21%   73-88, 94-122, 126-153, 157-182, 186-199, 205-222, 226-265, 269-276
+improve_classification.py                96     96     0%   15-400
+integrations/ticketing_api.py           239    239     0%   16-520
+rag/embedding/embedding_pipeline.py      24      9    62%   28, 30-38
+rag/ingestion/ingestion_pipeline.py      80     62    22%   13-14, 26-85, 89, 93, 97, 100-101, 105, 108-118
+rag/rag_workflow.py                      66     51    23%   24-51, 55-58, 71-121
+rag/retrieval/retrieval_pipeline.py      45     18    60%   25-30, 37-43, 47-51, 56
+run_tests.py                             45     45     0%   12-87
+setup_knowledge_base.py                  48     48     0%   5-85
+vector_store/chroma_vector_store.py      27      8    70%   19-23, 37-39
+-------------------------------------------------------------------
+TOTAL                                  1930   1004    48%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+======================== 60 passed in 241.72s (0:04:01) ========================
