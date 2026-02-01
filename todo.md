@@ -70,8 +70,16 @@
    - Correctly identifies unique tickets (no false positives)
    - Can retrieve resolutions from similar past tickets
 
+3. ✅ SLA breach prediction and risk assessment
+   - Created SLAPredictorAgent for SLA deadline tracking
+   - 4 urgency levels with defined response/resolution SLAs (critical: 1h/4h, high: 2h/8h, medium: 4h/24h, low: 8h/48h)
+   - Complexity multipliers: simple (0.5x), moderate (1.0x), complex (1.5x), very_complex (2.0x)
+   - Integrates historical data from similar tickets (70% historical + 30% baseline)
+   - 4 risk levels: safe, warning, danger, critical with actionable recommendations
+   - Detects breached SLAs and provides escalation guidance
+
 **In Progress:**
-3. 🔄 Implement urgency boost from KB metadata (Priority field)
+4. 🔄 Implement urgency boost from KB metadata (Priority field)
 
 **Future Work:**
 - Ticketing tool integration (API ingestion, ticket updates)
