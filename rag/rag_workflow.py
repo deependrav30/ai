@@ -21,23 +21,34 @@ retrieval = RetrievalPipeline(embedding_model, vector_store, top_k=5)
 
 
 def index_document(file_path: str, metadata: dict):
-    # 1. Ingest and chunk document
-    chunk_texts, chunk_metadatas = ingestion.ingest(file_path, metadata)
-    if not chunk_texts:
-        print(f"[WARNING] No text chunks extracted from {file_path}. Skipping embedding and vector store.")
-        return
-    # 2. Embed chunks using OpenAI
-    vectors = embedding_model.embed(chunk_texts)
-    if not vectors:
-        print(f"[WARNING] No embeddings generated for {file_path}. Skipping vector store.")
-        return
-    # 3. Add chunk text to metadata for retrieval
-    for i, chunk_meta in enumerate(chunk_metadatas):
-        chunk_meta['chunk_text'] = chunk_texts[i]
-    # 4. Store vectors and metadata in vector DB
-    ids = [f"{os.path.basename(file_path)}_chunk_{i+1}" for i in range(len(chunk_texts))]
-    vector_store.add(ids, vectors, chunk_metadatas)
-    print(f"Indexed {len(chunk_texts)} chunks from {file_path}")
+    try:
+        # 1. Ingest and chunk document
+        chunk_texts, chunk_metadatas = ingestion.ingest(file_path, metadata)
+        if not chunk_texts:
+            print(f"[WARNING] No text chunks extracted from {file_path}. Skipping embedding and vector store.")
+            return
+        # 2. Embed chunks using OpenAI
+        try:
+            vectors = embedding_model.embed(chunk_texts)
+        except ValueError as ve:
+            # Re-raise user-friendly error from embedding
+            raise ve
+        if not vectors:
+            print(f"[WARNING] No embeddings generated for {file_path}. Skipping vector store.")
+            return
+        # 3. Add chunk text to metadata for retrieval
+        for i, chunk_meta in enumerate(chunk_metadatas):
+            chunk_meta['chunk_text'] = chunk_texts[i]
+        # 4. Store vectors and metadata in vector DB
+        ids = [f"{os.path.basename(file_path)}_chunk_{i+1}" for i in range(len(chunk_texts))]
+        vector_store.add(ids, vectors, chunk_metadatas)
+        print(f"Indexed {len(chunk_texts)} chunks from {file_path}")
+    except ValueError as ve:
+        # Re-raise user-friendly errors
+        raise ve
+    except Exception as e:
+        print(f"Index document error: {str(e)}")
+        raise ValueError("Failed to index document. Please try again.")
 
 def query_rag(query: str):
     # 4. Retrieve top-k relevant chunks
@@ -58,7 +69,7 @@ def generate_response(query: str, chunks: list) -> str:
         Generated response string
     """
     if not chunks:
-        return "No relevant information found to answer your question."
+        return "I don't know the answer to this question based on the available documents. Would you like me to assign this incident to a service user?"
     
     # Prepare context from chunks
     context_parts = []
@@ -71,6 +82,8 @@ def generate_response(query: str, chunks: list) -> str:
     # Create prompt for GPT-4
     prompt = f"""Based on the following context from our document knowledge base, please answer the user's question. Be concise, accurate, and cite sources using [Source X] notation when referencing specific information.
 
+IMPORTANT: If the context does not contain sufficient information to answer the question confidently, respond EXACTLY with: "I don't know the answer to this question. Would you like me to assign this incident to a service user?"
+
 Context:
 {context}
 
@@ -80,7 +93,11 @@ Answer (include source citations like [Source 1] when appropriate):"""
     
     # Call OpenAI GPT-4
     try:
-        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key or api_key == 'your-api-key-here':
+            return "⚠️ OpenAI API key is not configured. Please add your API key to the .env file."
+        
+        client = OpenAI(api_key=api_key)
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
@@ -92,7 +109,16 @@ Answer (include source citations like [Source 1] when appropriate):"""
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"Error generating response: {str(e)}"
+        error_msg = str(e)
+        if '401' in error_msg or 'invalid_api_key' in error_msg:
+            return "🔑 Invalid OpenAI API key. Please check your API key in the .env file and ensure it's correct."
+        elif '429' in error_msg or 'rate_limit' in error_msg:
+            return "⏱️ Rate limit exceeded. Please wait a moment and try again."
+        elif '500' in error_msg or '503' in error_msg:
+            return "🔧 OpenAI service is temporarily unavailable. Please try again later."
+        else:
+            print(f"OpenAI API Error: {error_msg}")
+            return "❌ Unable to generate response. Please try again or contact support if the issue persists."
 
 # Example usage:
 # index_document('/path/to/file.pdf', {'Type': 'Process', 'Subtype': 'KYC', 'Priority': 'P1', 'Uploaded By': 'Admin', 'Timestamp': '2026-01-31'})

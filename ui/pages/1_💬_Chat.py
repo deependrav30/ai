@@ -91,7 +91,11 @@ Latest User Question: {user_query}
 Reformulated Standalone Question:"""
     
     try:
-        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key or api_key == 'your-api-key-here':
+            return user_query
+        
+        client = OpenAI(api_key=api_key)
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
@@ -104,7 +108,8 @@ Reformulated Standalone Question:"""
         reformulated = response.choices[0].message.content.strip()
         return reformulated
     except Exception as e:
-        st.warning(f"Query reformulation failed: {str(e)}. Using original query.")
+        # Silently fall back to original query on error
+        print(f"Query reformulation error: {str(e)}")
         return user_query
 
 
@@ -130,48 +135,71 @@ def process_chat_message(user_input: str):
     with st.chat_message("assistant"):
         status_placeholder = st.empty()
         
-        # Step 1: Reformulate query
-        status_placeholder.info("🔄 Understanding your question in context...")
-        reformulated_query = reformulate_query(user_input, st.session_state.chat_history)
-        
-        if reformulated_query != user_input:
-            st.caption(f"🔍 Searching for: *{reformulated_query}*")
-        
-        # Step 2: Retrieve chunks
-        status_placeholder.info("📚 Searching through documents...")
-        results = retrieval.retrieve(reformulated_query)
-        
-        if not results:
-            status_placeholder.empty()
-            response = "I couldn't find any relevant information in the documents to answer your question. Could you please rephrase or provide more context?"
-            sources = None
-        else:
-            # Step 3: Show fast-moving chunks
-            chunks_placeholder = st.empty()
-            for i, res in enumerate(results, 1):
-                chunk_text = res.get('chunk', res.get('chunk_text', ''))[:150]
-                chunks_placeholder.markdown(f"""
-                <div style='
-                    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-                    padding: 8px 15px;
-                    border-radius: 8px;
-                    color: white;
-                    font-size: 13px;
-                    margin: 5px 0;
-                    animation: slideIn 0.2s;
-                '>
-                    📄 Source [{i}/{len(results)}] • {res['score']:.0%} match • {chunk_text}...
-                </div>
-                """, unsafe_allow_html=True)
-                import time
-                time.sleep(0.12)
+        try:
+            # Step 1: Reformulate query
+            status_placeholder.info("🔄 Understanding your question in context...")
+            reformulated_query = reformulate_query(user_input, st.session_state.chat_history)
             
-            chunks_placeholder.empty()
+            if reformulated_query != user_input:
+                st.caption(f"🔍 Searching for: *{reformulated_query}*")
             
-            # Step 4: Generate response
-            status_placeholder.info("🤖 Generating answer with GPT-4...")
-            response = generate_response(reformulated_query, results)
+            # Step 2: Retrieve chunks
+            status_placeholder.info("📚 Searching through documents...")
+            try:
+                results = retrieval.retrieve(reformulated_query)
+            except ValueError as ve:
+                status_placeholder.empty()
+                response = f"⚠️ {str(ve)}"
+                sources = None
+                results = []
+            except Exception as e:
+                print(f"Retrieval error in chat: {str(e)}")
+                status_placeholder.empty()
+                response = "❌ Unable to search documents. Please try again or contact support if the issue persists."
+                sources = None
+                results = []
+            
+            if not results:
+                if 'response' not in locals():
+                    status_placeholder.empty()
+                    response = "I don't know the answer to this question based on the available documents. Would you like me to assign this incident to a service user?"
+                sources = None
+            else:
+                # Step 3: Show fast-moving chunks
+                chunks_placeholder = st.empty()
+                for i, res in enumerate(results, 1):
+                    chunk_text = res.get('chunk', res.get('chunk_text', ''))[:150]
+                    chunks_placeholder.markdown(f"""
+                    <div style='
+                        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                        padding: 8px 15px;
+                        border-radius: 8px;
+                        color: white;
+                        font-size: 13px;
+                        margin: 5px 0;
+                        animation: slideIn 0.2s;
+                    '>
+                        📄 Source [{i}/{len(results)}] • {res['score']:.0%} match • {chunk_text}...
+                    </div>
+                    """, unsafe_allow_html=True)
+                    import time
+                    time.sleep(0.12)
+                
+                chunks_placeholder.empty()
+                
+                # Step 4: Generate response
+                status_placeholder.info("🤖 Generating answer with GPT-4...")
+                try:
+                    response = generate_response(reformulated_query, results)
+                except Exception as e:
+                    print(f"Response generation error in chat: {str(e)}")
+                    response = "❌ Unable to generate response. Please try again or contact support if the issue persists."
+                status_placeholder.empty()
+        except Exception as e:
             status_placeholder.empty()
+            print(f"Chat processing error: {str(e)}")
+            response = "❌ An error occurred while processing your message. Please try again or contact support if the issue persists."
+            sources = None if 'sources' not in locals() else sources
             
             # Show final response
             st.markdown(f"""
@@ -231,19 +259,28 @@ with st.sidebar:
     
     # New chat button
     if st.button("➕ New Chat Session", use_container_width=True, type="primary"):
-        st.session_state.chat_started = True
-        st.session_state.chat_history = []
-        new_session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        st.session_state.session_id = new_session_id
-        chat_storage.create_session(new_session_id)
-        st.success("New session created!")
-        st.rerun()
+        try:
+            st.session_state.chat_started = True
+            st.session_state.chat_history = []
+            new_session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+            st.session_state.session_id = new_session_id
+            chat_storage.create_session(new_session_id)
+            st.success("New session created!")
+            st.rerun()
+        except Exception as e:
+            print(f"Session creation error: {str(e)}")
+            st.error("❌ Failed to create session. Please try again.")
     
     st.divider()
     
     # Load previous sessions
     st.subheader("📚 Previous Sessions")
-    sessions = chat_storage.get_all_sessions(limit=20)
+    try:
+        sessions = chat_storage.get_all_sessions(limit=20)
+    except Exception as e:
+        print(f"Session retrieval error: {str(e)}")
+        sessions = []
+        st.warning("⚠️ Unable to load previous sessions.")
     
     if sessions:
         for session in sessions:
@@ -256,32 +293,40 @@ with st.sidebar:
                     key=f"load_{session['session_id']}",
                     use_container_width=True
                 ):
-                    # Load session
-                    st.session_state.session_id = session['session_id']
-                    st.session_state.chat_started = True
-                    
-                    # Load messages
-                    messages = chat_storage.get_session_messages(session['session_id'])
-                    st.session_state.chat_history = []
-                    for msg in messages:
-                        if msg['role'] == 'user':
-                            current_q = msg['content']
-                        elif msg['role'] == 'assistant':
-                            st.session_state.chat_history.append({
-                                'question': current_q,
-                                'answer': msg['content'],
-                                'timestamp': msg['timestamp'],
-                                'reformulated_query': msg.get('reformulated_query')
-                            })
-                    
-                    st.success(f"Loaded: {session['title']}")
-                    st.rerun()
+                    try:
+                        # Load session
+                        st.session_state.session_id = session['session_id']
+                        st.session_state.chat_started = True
+                        
+                        # Load messages
+                        messages = chat_storage.get_session_messages(session['session_id'])
+                        st.session_state.chat_history = []
+                        for msg in messages:
+                            if msg['role'] == 'user':
+                                current_q = msg['content']
+                            elif msg['role'] == 'assistant':
+                                st.session_state.chat_history.append({
+                                    'question': current_q,
+                                    'answer': msg['content'],
+                                    'timestamp': msg['timestamp'],
+                                    'reformulated_query': msg.get('reformulated_query')
+                                })
+                        
+                        st.success(f"Loaded: {session['title']}")
+                        st.rerun()
+                    except Exception as e:
+                        print(f"Session load error: {str(e)}")
+                        st.error("❌ Failed to load session. Please try again.")
             
             with col2:
                 if st.button("🗑️", key=f"del_{session['session_id']}"):
-                    chat_storage.delete_session(session['session_id'])
-                    st.success("Deleted!")
-                    st.rerun()
+                    try:
+                        chat_storage.delete_session(session['session_id'])
+                        st.success("Deleted!")
+                        st.rerun()
+                    except Exception as e:
+                        print(f"Session deletion error: {str(e)}")
+                        st.error("❌ Failed to delete session.")
     else:
         st.info("No previous sessions yet.")
     
@@ -292,15 +337,22 @@ with st.sidebar:
     st.caption("Export user interactions for system improvement")
     
     if st.button("📥 Export Training Data", use_container_width=True):
-        output_file = f"training_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        if chat_storage.export_training_data(output_file):
-            st.success(f"Exported to {output_file}")
-            
-            # Show stats
-            interactions = chat_storage.get_training_data(limit=1000)
-            st.metric("Total Interactions", len(interactions))
-        else:
-            st.error("Export failed")
+        try:
+            output_file = f"training_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            if chat_storage.export_training_data(output_file):
+                st.success(f"✅ Exported to {output_file}")
+                
+                # Show stats
+                try:
+                    interactions = chat_storage.get_training_data(limit=1000)
+                    st.metric("Total Interactions", len(interactions))
+                except Exception as e:
+                    print(f"Stats retrieval error: {str(e)}")
+            else:
+                st.warning("⚠️ No data to export.")
+        except Exception as e:
+            print(f"Export error: {str(e)}")
+            st.error("❌ Export failed. Please try again.")
     
     # Current session info
     if st.session_state.chat_started:

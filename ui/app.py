@@ -28,47 +28,62 @@ uploader = st.text_input("Uploaded By", value="Admin")
 file = st.file_uploader("Choose a file (PDF, DOCX, PPTX, TXT, Image)", type=["pdf", "docx", "pptx", "txt", "png", "jpg", "jpeg"])
 
 if st.button("Upload") and file:
-    timestamp = datetime.now().isoformat()
-    save_dir = f"../data/uploaded/{doc_type}/{doc_subtype}/{priority}/"
-    os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, file.name)
-    with open(save_path, "wb") as f:
-        f.write(file.getbuffer())
-    st.success(f"Uploaded to {save_path}")
-    st.session_state['last_upload'] = {
-        'file_path': save_path,
-        'metadata': {
-            'Type': doc_type,
-            'Subtype': doc_subtype,
-            'Priority': priority,
-            'Uploaded By': uploader,
-            'Timestamp': timestamp
+    try:
+        timestamp = datetime.now().isoformat()
+        save_dir = f"../data/uploaded/{doc_type}/{doc_subtype}/{priority}/"
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, file.name)
+        with open(save_path, "wb") as f:
+            f.write(file.getbuffer())
+        st.success(f"Uploaded to {save_path}")
+        st.session_state['last_upload'] = {
+            'file_path': save_path,
+            'metadata': {
+                'Type': doc_type,
+                'Subtype': doc_subtype,
+                'Priority': priority,
+                'Uploaded By': uploader,
+                'Timestamp': timestamp
+            }
         }
-    }
-    # Try to ingest and check for extracted text chunks before indexing
-    from rag.ingestion.ingestion_pipeline import IngestionPipeline
-    ingestion = IngestionPipeline(chunk_size=500, chunk_overlap=50)
-    chunk_texts, chunk_metadatas = ingestion.ingest(save_path, st.session_state['last_upload']['metadata'])
-    if not chunk_texts:
-        st.warning("No text could be extracted from this document. Indexing skipped.")
-    else:
-        # Backend integration: Index document
-        index_document(save_path, st.session_state['last_upload']['metadata'])
-        st.info("Document indexed in RAG pipeline.")
+        # Try to ingest and check for extracted text chunks before indexing
+        try:
+            from rag.ingestion.ingestion_pipeline import IngestionPipeline
+            ingestion = IngestionPipeline(chunk_size=500, chunk_overlap=50)
+            chunk_texts, chunk_metadatas = ingestion.ingest(save_path, st.session_state['last_upload']['metadata'])
+            if not chunk_texts:
+                st.warning("⚠️ No text could be extracted from this document. Please try a different file.")
+            else:
+                # Backend integration: Index document
+                index_document(save_path, st.session_state['last_upload']['metadata'])
+                st.info("✅ Document indexed successfully in RAG pipeline.")
+        except ValueError as ve:
+            st.error(f"⚠️ {str(ve)}")
+        except Exception as e:
+            print(f"Indexing error: {str(e)}")
+            st.error("❌ Failed to process document. Please ensure the file is valid and try again.")
+    except Exception as e:
+        print(f"Upload error: {str(e)}")
+        st.error("❌ Upload failed. Please try again or contact support if the issue persists.")
 
 # Query Section
 st.header("2. Semantic Search Query")
 query = st.text_input("Enter your search query")
 
 if st.button("Search") and query:
-    import time
-    
-    # Phase 1: Searching animation
-    search_status = st.empty()
-    search_status.info("🔍 Searching through document knowledge base...")
-    time.sleep(0.5)
-    
-    results = retrieval.retrieve(query)
+    try:
+        import time
+        
+        # Phase 1: Searching animation
+        search_status = st.empty()
+        search_status.info("🔍 Searching through document knowledge base...")
+        time.sleep(0.5)
+        
+        results = retrieval.retrieve(query)
+    except Exception as e:
+        print(f"Search error: {str(e)}")
+        st.error("❌ Search failed. Please try again or contact support if the issue persists.")
+        results = []
     
     if results:
         # Phase 2: Show chunks being analyzed with fast animation (then disappear)
@@ -115,12 +130,17 @@ if st.button("Search") and query:
         st.markdown("---")
         
         # Phase 3: Generate final response
-        from rag.rag_workflow import generate_response
-        response_placeholder = st.empty()
-        response_placeholder.info("🤖 Synthesizing answer from sources using GPT-4...")
-        
-        final_response = generate_response(query, results)
-        response_placeholder.empty()
+        try:
+            from rag.rag_workflow import generate_response
+            response_placeholder = st.empty()
+            response_placeholder.info("🤖 Synthesizing answer from sources using GPT-4...")
+            
+            final_response = generate_response(query, results)
+            response_placeholder.empty()
+        except Exception as e:
+            response_placeholder.empty()
+            print(f"Response generation error: {str(e)}")
+            final_response = "❌ Unable to generate response. Please try again or contact support if the issue persists."
         
         # Phase 4: Show final response with sources
         st.markdown("""

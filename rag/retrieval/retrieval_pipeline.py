@@ -19,8 +19,15 @@ class RetrievalPipeline:
         Retrieve top-k relevant chunks for a query, with optional metadata filters and deduplication.
         filters: dict, e.g. {"Priority": "P0", "Type": "Process"}
         """
-        query_vector = self.embedding_model.embed([query])[0]
-        results = self.vector_store.search(query_vector, top_k=self.top_k * 2)  # Overfetch for filtering/dedup
+        try:
+            query_vector = self.embedding_model.embed([query])[0]
+            results = self.vector_store.search(query_vector, top_k=self.top_k * 2)  # Overfetch for filtering/dedup
+        except ValueError as ve:
+            # Re-raise ValueError from embedding (user-friendly message)
+            raise ve
+        except Exception as e:
+            print(f"Retrieval error: {str(e)}")
+            raise ValueError("Failed to search documents. Please try again.")
         formatted = []
         seen_chunks = set()
         for hit in results:

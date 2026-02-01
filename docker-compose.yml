@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Redis - Working Memory (short-term task context)
+  redis:
+    image: redis:7-alpine
+    container_name: ai_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # PostgreSQL - Episodic Memory (past tickets, resolutions)
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai_postgres
+    environment:
+      POSTGRES_USER: ai_agent
+      POSTGRES_PASSWORD: ai_agent_password
+      POSTGRES_DB: episodic_memory
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_agent"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # ChromaDB - Semantic Memory (document embeddings)
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: ai_chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadb_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_TOKEN_TRANSPORT_HEADER=X-Chroma-Token
+      - CHROMA_SERVER_AUTH_CREDENTIALS=ai_chroma_token
+      - ALLOW_RESET=TRUE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+  chromadb_data:
+    driver: local
+
+networks:
+  default:
+    name: ai_agent_network

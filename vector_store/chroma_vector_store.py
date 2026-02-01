@@ -16,19 +16,27 @@ class ChromaVectorStore:
         self.collection = self.client.get_or_create_collection(collection_name)
 
     def add(self, ids: List[str], vectors: List[list], metadatas: List[Dict[str, Any]]):
-        self.collection.add(ids=ids, embeddings=vectors, metadatas=metadatas)
+        try:
+            self.collection.add(ids=ids, embeddings=vectors, metadatas=metadatas)
+        except Exception as e:
+            print(f"Vector store add error: {str(e)}")
+            raise ValueError("Failed to store document vectors. Please try again.")
 
     def search(self, query_vector: list, top_k: int = 5):
-        results = self.collection.query(query_embeddings=[query_vector], n_results=top_k)
-        hits = []
-        for i in range(len(results["ids"][0])):
-            hit = {
-                "id": results["ids"][0][i],
-                "metadata": results["metadatas"][0][i],
-                "distance": results["distances"][0][i],
-            }
-            hits.append(hit)
-        return hits
+        try:
+            results = self.collection.query(query_embeddings=[query_vector], n_results=top_k)
+            hits = []
+            for i in range(len(results["ids"][0])):
+                hit = {
+                    "id": results["ids"][0][i],
+                    "metadata": results["metadatas"][0][i],
+                    "distance": results["distances"][0][i],
+                }
+                hits.append(hit)
+            return hits
+        except Exception as e:
+            print(f"Vector store search error: {str(e)}")
+            raise ValueError("Failed to search vector database. Please try again.")
 
 # Example usage:
 # store = ChromaVectorStore()
