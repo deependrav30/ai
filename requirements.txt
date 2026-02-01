@@ -8,3 +8,5 @@ langchain-openai
 redis
 psycopg2-binary
 sqlalchemy
+plotly
+pandas
