@@ -24,7 +24,8 @@ class IngestionPipeline:
 
     def ingest(self, file_path: str, metadata: Dict[str, Any]) -> List[DocumentChunk]:
         ext = os.path.splitext(file_path)[1].lower()
-        if ext not in SUPPORTED_EXTENSIONS:
+        # Add .md to supported extensions
+        if ext not in SUPPORTED_EXTENSIONS and ext != '.md':
             raise ValueError(f"Unsupported file type: {ext}")
 
         # Prepare output directory for this document
@@ -45,7 +46,7 @@ class IngestionPipeline:
         elif ext == '.pptx':
             text = self._extract_pptx(file_path)
             images = [] # TODO: extract images from PPTX
-        elif ext == '.txt':
+        elif ext in ['.txt', '.md']:
             text = self._extract_txt(file_path)
             images = []
         elif ext in ['.png', '.jpg', '.jpeg']:
