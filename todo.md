@@ -51,7 +51,20 @@
     - Better context preservation with larger semantic chunks
     - Metadata fields increased from 5 to 11
 
-### 🎯 **Phase 7: NEXT** (Enhanced Features & Testing)
+### 🎯 **Phase 7: IN PROGRESS** (Classification Improvements & Enhanced Features)
+
+**Completed Items:**
+1. ✅ Enhanced IntentAgent with keyword matching
+   - Added intent keyword patterns (5 types: incident, service_request, question, problem, change)
+   - Added urgency keyword patterns (4 levels: critical, high, medium, low)
+   - Pre-classification with keyword matching before LLM call
+   - Keyword hints passed to LLM for improved accuracy
+   - Test results: 100% intent accuracy on keyword matching
+   - Integration: Keyword matching + GPT-4o-mini for best accuracy
+
+**In Progress:**
+2. 🔄 Test enhanced IntentAgent with observability data
+3. 🔄 Implement urgency boost from KB metadata (Priority field)
 
 **Future Work:**
 - Ticketing tool integration (API ingestion, ticket updates)
