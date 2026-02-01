@@ -1,0 +1,126 @@
+{
+  "dashboard": {
+    "title": "Agent Performance Metrics",
+    "tags": ["ai", "agents", "performance"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Agent Execution Count (Last Hour)",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+        "description": "Total number of agent executions. Once custom metrics are added, this will show real data.",
+        "targets": [
+          {
+            "expr": "sum(rate(agent_executions_total[1h])) or vector(0)",
+            "legendFormat": "Executions/min",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "orientation": "horizontal"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Agent Response Time (P50, P95, P99)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "description": "Placeholder for agent response time percentiles. Add custom metrics to populate.",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(agent_duration_seconds_bucket[5m]))",
+            "legendFormat": "P50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(agent_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(agent_duration_seconds_bucket[5m]))",
+            "legendFormat": "P99",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Response Time"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Agent Error Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "description": "Percentage of failed agent executions. Requires custom metrics.",
+        "targets": [
+          {
+            "expr": "rate(agent_errors_total[5m]) / rate(agent_executions_total[5m]) * 100 or vector(0)",
+            "legendFormat": "Error Rate %",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "Error Rate"},
+          {"format": "short"}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [5], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "avg"},
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "1m",
+          "handler": 1,
+          "name": "High Error Rate",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 4,
+        "title": "Agents by Type (Execution Count)",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "description": "Distribution of executions across agent types. Requires custom metrics.",
+        "targets": [
+          {
+            "expr": "sum by (agent_type) (increase(agent_executions_total[1h])) or vector(0)",
+            "legendFormat": "{{agent_type}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "OpenAI API Calls (Rate)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "description": "Rate of calls to OpenAI API. Monitor for rate limiting.",
+        "targets": [
+          {
+            "expr": "rate(openai_api_calls_total[5m]) * 60 or vector(0)",
+            "legendFormat": "Calls/min",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Calls per Minute"},
+          {"format": "short"}
+        ]
+      }
+    ]
+  }
+}

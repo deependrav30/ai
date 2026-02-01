@@ -1,0 +1,107 @@
+{
+  "dashboard": {
+    "title": "AI Agent System Overview",
+    "tags": ["ai", "agents", "overview"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Health Status",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "up",
+            "legendFormat": "{{job}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "orientation": "horizontal"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"type": "value", "value": "0", "text": "DOWN"},
+              {"type": "value", "value": "1", "text": "UP"}
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Memory Services Status",
+        "type": "table",
+        "gridPos": {"h": 6, "w": 10, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "up{job=~\"redis|postgres|chromadb\"}",
+            "format": "table",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true},
+              "indexByName": {},
+              "renameByName": {
+                "job": "Service",
+                "Value": "Status"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Service Uptime (24h)",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 16, "x": 0, "y": 6},
+        "targets": [
+          {
+            "expr": "up{job!=\"prometheus\"}",
+            "legendFormat": "{{job}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {"drawStyle": "line", "fillOpacity": 10},
+            "min": 0,
+            "max": 1
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Active Alerts",
+        "type": "alertlist",
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 6},
+        "options": {
+          "showOptions": "current",
+          "maxItems": 20,
+          "sortOrder": 1,
+          "dashboardAlerts": false,
+          "alertName": "",
+          "dashboardTitle": "",
+          "folderId": null,
+          "tags": []
+        }
+      }
+    ]
+  }
+}

@@ -9,4 +9,4 @@ redis
 psycopg2-binary
 sqlalchemy
 plotly
-pandas
+pandasprometheus-client

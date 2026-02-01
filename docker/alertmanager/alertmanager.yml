@@ -1,0 +1,60 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'localhost:25'
+  smtp_from: 'alertmanager@example.com'
+
+# Route tree for alerts
+route:
+  receiver: 'default'
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      continue: true
+    
+    # Warning alerts - less urgent
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      continue: true
+
+# Receivers (notification channels)
+receivers:
+  - name: 'default'
+    # Default receiver - logs only
+    
+  - name: 'critical-alerts'
+    # Configure your notification channels here
+    # Examples:
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#alerts-critical'
+    #     title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    
+    # pagerduty_configs:
+    #   - service_key: 'YOUR_PAGERDUTY_KEY'
+    
+    # email_configs:
+    #   - to: 'oncall@example.com'
+    #     subject: '🚨 CRITICAL ALERT: {{ .GroupLabels.alertname }}'
+  
+  - name: 'warning-alerts'
+    # Email for warnings
+    # email_configs:
+    #   - to: 'team@example.com'
+    #     subject: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
+
+# Inhibition rules (suppress redundant alerts)
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']

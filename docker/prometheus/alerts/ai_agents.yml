@@ -1,0 +1,60 @@
+groups:
+  - name: ai_agent_alerts
+    interval: 30s
+    rules:
+      # System Health Alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
+
+      # Database Alerts
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Episodic memory storage is unavailable. Agents cannot access historical tickets."
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis cache is down"
+          description: "Working memory is unavailable. Active sessions may be lost."
+
+      - alert: ChromaDBDown
+        expr: up{job="chromadb"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ChromaDB vector store is down"
+          description: "Semantic memory is unavailable. Knowledge base search will fail."
+
+      # Performance Alerts (placeholder - requires custom metrics)
+      # - alert: HighResponseTime
+      #   expr: agent_response_time_seconds{quantile="0.95"} > 5
+      #   for: 5m
+      #   labels:
+      #     severity: warning
+      #   annotations:
+      #     summary: "High response time detected"
+      #     description: "P95 response time is above 5 seconds for {{ $labels.agent }}."
+
+      # - alert: HighErrorRate
+      #   expr: rate(agent_errors_total[5m]) > 0.05
+      #   for: 5m
+      #   labels:
+      #     severity: warning
+      #   annotations:
+      #     summary: "High error rate detected"
+      #     description: "Error rate is above 5% for {{ $labels.agent }}."
