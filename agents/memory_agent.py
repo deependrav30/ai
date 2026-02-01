@@ -6,8 +6,8 @@ Manages three types of memory:
 2. Episodic Memory (PostgreSQL): Past tickets, resolutions, outcomes
 3. Semantic Memory (ChromaDB): Document embeddings, knowledge base
 
-For now, implements basic functionality with SQLite fallback.
-Full Redis/PostgreSQL integration via Docker Compose later.
+Now using Redis and PostgreSQL via Docker Compose (ports: 6380, 5433).
+Falls back to in-memory/SQLite if services unavailable.
 """
 from typing import Dict, Any, List
 import time
@@ -22,6 +22,22 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from database.chat_storage import ChatStorage
 
+# Import Redis and PostgreSQL libraries
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    logger.warning("Redis library not available, using in-memory fallback")
+
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    POSTGRES_AVAILABLE = True
+except ImportError:
+    POSTGRES_AVAILABLE = False
+    logger.warning("psycopg2 library not available, using SQLite fallback")
+
 
 class MemoryAgent(BaseAgent):
     """
@@ -32,15 +48,58 @@ class MemoryAgent(BaseAgent):
         super().__init__("MemoryAgent")
         self.chat_storage = ChatStorage()
         
-        # Working memory (in-memory dict for now, Redis later)
+        # Working memory - Try Redis first, fallback to in-memory dict
+        self.redis_client = None
         self.working_memory = {}
+        self._init_redis()
         
-        # Initialize episodic memory database
+        # Episodic memory - Try PostgreSQL first, fallback to SQLite
+        self.postgres_conn = None
         self.episodic_db_path = "db/episodic_memory.db"
         self._init_episodic_memory()
     
+    def _init_redis(self):
+        """Initialize Redis connection for working memory"""
+        if not REDIS_AVAILABLE:
+            logger.info("Using in-memory working memory (Redis not available)")
+            return
+        
+        try:
+            self.redis_client = redis.Redis(
+                host='localhost',
+                port=6380,
+                db=0,
+                decode_responses=True,
+                socket_connect_timeout=2
+            )
+            # Test connection
+            self.redis_client.ping()
+            logger.info("✓ Connected to Redis for working memory (port 6380)")
+        except Exception as e:
+            logger.warning(f"Redis connection failed, using in-memory fallback: {e}")
+            self.redis_client = None
+    
     def _init_episodic_memory(self):
-        """Initialize episodic memory database"""
+        """Initialize episodic memory - PostgreSQL with SQLite fallback"""
+        
+        # Try PostgreSQL first
+        if POSTGRES_AVAILABLE:
+            try:
+                self.postgres_conn = psycopg2.connect(
+                    host='localhost',
+                    port=5433,
+                    database='episodic_memory',
+                    user='ai_agent',
+                    password='ai_agent_password',
+                    connect_timeout=2
+                )
+                logger.info("✓ Connected to PostgreSQL for episodic memory (port 5433)")
+                return
+            except Exception as e:
+                logger.warning(f"PostgreSQL connection failed, using SQLite fallback: {e}")
+                self.postgres_conn = None
+        
+        # Fallback to SQLite
         os.makedirs("db", exist_ok=True)
         
         conn = sqlite3.connect(self.episodic_db_path)
@@ -65,7 +124,7 @@ class MemoryAgent(BaseAgent):
         
         conn.commit()
         conn.close()
-        logger.info("Episodic memory database initialized")
+        logger.info("✓ Episodic memory using SQLite fallback")
     
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -133,25 +192,40 @@ class MemoryAgent(BaseAgent):
     
     def store_working_memory(self, state: Dict[str, Any]):
         """
-        Store current task context in working memory.
+        Store current task context in working memory (Redis or in-memory).
         
         Args:
             state: Current state
         """
         task_id = state.get("task_id", f"task_{datetime.now().timestamp()}")
         
-        self.working_memory[task_id] = {
+        memory_data = {
             "user_input": state.get("user_input", ""),
             "intent": state.get("intent", ""),
             "category": state.get("category", ""),
             "timestamp": datetime.now().isoformat()
         }
         
-        logger.info(f"Stored working memory for {task_id}")
+        # Try Redis first
+        if self.redis_client:
+            try:
+                self.redis_client.setex(
+                    f"working_memory:{task_id}",
+                    3600,  # 1 hour TTL
+                    json.dumps(memory_data)
+                )
+                logger.info(f"Stored working memory in Redis for {task_id}")
+                return
+            except Exception as e:
+                logger.warning(f"Redis store failed: {e}, using in-memory fallback")
+        
+        # Fallback to in-memory
+        self.working_memory[task_id] = memory_data
+        logger.info(f"Stored working memory (in-memory) for {task_id}")
     
     def search_episodic_memory(self, state: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Search episodic memory for similar past tickets.
+        Search episodic memory for similar past tickets (PostgreSQL or SQLite).
         
         Args:
             state: Current state with user_input, intent, category
@@ -162,10 +236,43 @@ class MemoryAgent(BaseAgent):
         intent = state.get("intent", "")
         category = state.get("category", "")
         
+        # Try PostgreSQL first
+        if self.postgres_conn:
+            try:
+                cursor = self.postgres_conn.cursor(cursor_factory=RealDictCursor)
+                
+                query = '''
+                    SELECT * FROM past_tickets
+                    WHERE 1=1
+                '''
+                params = []
+                
+                if intent:
+                    query += " AND intent = %s"
+                    params.append(intent)
+                
+                if category:
+                    query += " AND category = %s"
+                    params.append(category)
+                
+                query += " ORDER BY created_at DESC LIMIT 5"
+                
+                cursor.execute(query, params)
+                rows = cursor.fetchall()
+                cursor.close()
+                
+                # Convert to list of dicts
+                past_tickets = [dict(row) for row in rows]
+                logger.info(f"Retrieved {len(past_tickets)} tickets from PostgreSQL")
+                return past_tickets
+                
+            except Exception as e:
+                logger.warning(f"PostgreSQL search failed: {e}, using SQLite fallback")
+        
+        # Fallback to SQLite
         conn = sqlite3.connect(self.episodic_db_path)
         cursor = conn.cursor()
         
-        # Search by intent and category
         query = '''
             SELECT * FROM past_tickets
             WHERE 1=1
@@ -201,6 +308,7 @@ class MemoryAgent(BaseAgent):
                 "timestamp": row[9]
             })
         
+        logger.info(f"Retrieved {len(past_tickets)} tickets from SQLite")
         return past_tickets
     
     def store_episodic_memory(self, state: Dict[str, Any]):
@@ -236,14 +344,36 @@ class MemoryAgent(BaseAgent):
         logger.info("Stored ticket in episodic memory")
     
     def get_working_memory(self, task_id: str) -> Dict[str, Any]:
-        """Get working memory for a task"""
+        """Get working memory for a task (Redis or in-memory)"""
+        
+        # Try Redis first
+        if self.redis_client:
+            try:
+                data = self.redis_client.get(f"working_memory:{task_id}")
+                if data:
+                    return json.loads(data)
+            except Exception as e:
+                logger.warning(f"Redis get failed: {e}")
+        
+        # Fallback to in-memory
         return self.working_memory.get(task_id, {})
     
     def clear_working_memory(self, task_id: str):
-        """Clear working memory after task completion"""
+        """Clear working memory after task completion (Redis or in-memory)"""
+        
+        # Try Redis first
+        if self.redis_client:
+            try:
+                self.redis_client.delete(f"working_memory:{task_id}")
+                logger.info(f"Cleared working memory from Redis for {task_id}")
+                return
+            except Exception as e:
+                logger.warning(f"Redis delete failed: {e}")
+        
+        # Fallback to in-memory
         if task_id in self.working_memory:
             del self.working_memory[task_id]
-            logger.info(f"Cleared working memory for {task_id}")
+            logger.info(f"Cleared working memory (in-memory) for {task_id}")
     
     def get_memory_summary(self, state: Dict[str, Any]) -> str:
         """Generate summary of memory search results"""
