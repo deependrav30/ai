@@ -1,0 +1,196 @@
+INFO:chromadb.telemetry.product.posthog:Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+INFO:agents.base_agent:Initializing Agent Workflow...
+INFO:agents.base_agent:Initialized IntentAgent
+INFO:agents.base_agent:Initialized RetrievalAgent
+INFO:agents.base_agent:Initialized MemoryAgent
+INFO:agents.base_agent:✓ Connected to Redis for working memory (port 6380)
+INFO:agents.base_agent:✓ Connected to PostgreSQL for episodic memory (port 5433)
+INFO:agents.base_agent:Initialized ReasoningAgent
+INFO:agents.base_agent:Initialized SynthesisAgent
+INFO:agents.base_agent:Initialized GuardrailsAgent
+INFO:agents.base_agent:Initialized OrchestratorAgent
+INFO:agents.base_agent:Initialized GeneralChatbot
+INFO:agents.base_agent:Initialized 6 agents successfully
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_001
+INFO:agents.base_agent:Input: Payment API returning 500 errors affecting multiple customers...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: Payment API returning 500 errors affecting multiple customers...
+INFO:agents.base_agent:Routing to multi-agent system
+INFO:agents.base_agent:Using SERIAL execution (default)
+INFO:agents.base_agent:Starting SERIAL execution
+INFO:agents.base_agent:Executing IntentAgent...
+INFO:agents.base_agent:Classifying intent for: Payment API returning 500 errors affecting multiple customers...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:IntentAgent confidence: 0.93, overall: 0.93
+INFO:agents.base_agent:Classification: incident, critical, confidence=0.93
+INFO:agents.base_agent:IntentAgent executed in 3.291s
+INFO:agents.base_agent:Executing RetrievalAgent...
+INFO:agents.base_agent:Searching knowledge base for: technical incident Payment API returning 500 errors affecting multiple customers...
+ERROR:agents.base_agent:RetrievalAgent error: query_rag() got an unexpected keyword argument 'top_k'
+INFO:agents.base_agent:RetrievalAgent confidence: 0.30, overall: 0.30
+INFO:agents.base_agent:Executing MemoryAgent...
+INFO:agents.base_agent:Stored working memory in Redis for task_1769935629.372727
+INFO:agents.base_agent:Retrieved 1 tickets from PostgreSQL
+INFO:agents.base_agent:MemoryAgent confidence: 0.80, overall: 0.30
+INFO:agents.base_agent:Found 1 similar past tickets
+INFO:agents.base_agent:MemoryAgent executed in 0.022s
+INFO:agents.base_agent:Executing ReasoningAgent...
+INFO:agents.base_agent:Generating reasoning and insights...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:ReasoningAgent confidence: 0.75, overall: 0.30
+INFO:agents.base_agent:Reasoning complete: 1. PATTERN ANALYSIS:
+Yes, this appears to be a recurring issue. The past ticket indicates a similar ...
+INFO:agents.base_agent:ReasoningAgent executed in 15.496s
+INFO:agents.base_agent:Executing SynthesisAgent...
+INFO:agents.base_agent:Generating final response...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:Response generated: Subject: Urgent: Response to Your Payment API Issue
+
+Dear User,
+
+Thank you for bringing this critica...
+INFO:agents.base_agent:SynthesisAgent executed in 13.241s
+INFO:agents.base_agent:Executing GuardrailsAgent...
+INFO:agents.base_agent:Running safety guardrails...
+INFO:agents.base_agent:FLAGGED for human review: low confidence
+INFO:agents.base_agent:GuardrailsAgent confidence: 1.00, overall: 0.30
+INFO:agents.base_agent:GuardrailsAgent executed in 0.000s
+INFO:agents.base_agent:Serial execution completed
+INFO:agents.base_agent:Orchestrator completed in 32.05s
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_001
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: serial
+INFO:agents.base_agent:Agents: intent → retrieval → memory → reasoning → synthesis → guardrails
+INFO:agents.base_agent:
+Classification:
+INFO:agents.base_agent:  Intent: incident
+INFO:agents.base_agent:  Category: technical
+INFO:agents.base_agent:  Urgency: critical
+INFO:agents.base_agent:  Team: DevOps
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.30
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 1
+INFO:agents.base_agent:  Pattern Detected: True
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:  ⚠️  NEEDS HUMAN REVIEW
+INFO:agents.base_agent:
+Response: Subject: Urgent: Response to Your Payment API Issue
+
+Dear User,
+
+Thank you for bringing this critical issue to our attention. We understand that the Payment API is returning 500 errors and this is aff...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Stored ticket in episodic memory
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_002
+INFO:agents.base_agent:Input: How do I reset my password?...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: How do I reset my password?...
+INFO:agents.base_agent:Routing to multi-agent system
+INFO:agents.base_agent:Using SERIAL execution (default)
+INFO:agents.base_agent:Starting SERIAL execution
+INFO:agents.base_agent:Executing IntentAgent...
+INFO:agents.base_agent:Classifying intent for: How do I reset my password?...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:IntentAgent confidence: 0.98, overall: 0.98
+INFO:agents.base_agent:Classification: question, low, confidence=0.98
+INFO:agents.base_agent:IntentAgent executed in 1.945s
+INFO:agents.base_agent:Executing RetrievalAgent...
+INFO:agents.base_agent:Searching knowledge base for: security How do I reset my password?...
+ERROR:agents.base_agent:RetrievalAgent error: query_rag() got an unexpected keyword argument 'top_k'
+INFO:agents.base_agent:RetrievalAgent confidence: 0.30, overall: 0.30
+INFO:agents.base_agent:Executing MemoryAgent...
+INFO:agents.base_agent:Stored working memory in Redis for task_1769935660.080872
+INFO:agents.base_agent:Retrieved 1 tickets from PostgreSQL
+INFO:agents.base_agent:MemoryAgent confidence: 0.80, overall: 0.30
+INFO:agents.base_agent:Found 1 similar past tickets
+INFO:agents.base_agent:MemoryAgent executed in 0.008s
+INFO:agents.base_agent:Executing ReasoningAgent...
+INFO:agents.base_agent:Generating reasoning and insights...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:ReasoningAgent confidence: 0.90, overall: 0.30
+INFO:agents.base_agent:Reasoning complete: 1. Pattern Analysis: This appears to be a recurring issue as there are similar past tickets. The tre...
+INFO:agents.base_agent:ReasoningAgent executed in 13.939s
+INFO:agents.base_agent:Executing SynthesisAgent...
+INFO:agents.base_agent:Generating final response...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:Response generated: Subject: Password Reset Instructions
+
+Dear User,
+
+Thank you for reaching out to our support team. I ...
+INFO:agents.base_agent:SynthesisAgent executed in 7.873s
+INFO:agents.base_agent:Executing GuardrailsAgent...
+INFO:agents.base_agent:Running safety guardrails...
+INFO:agents.base_agent:FLAGGED for human review: low confidence
+INFO:agents.base_agent:GuardrailsAgent confidence: 1.00, overall: 0.30
+INFO:agents.base_agent:GuardrailsAgent executed in 0.000s
+INFO:agents.base_agent:Serial execution completed
+INFO:agents.base_agent:Orchestrator completed in 23.77s
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:FINAL STATE - Ticket OBS_TEST_002
+INFO:agents.base_agent:============================================================
+INFO:agents.base_agent:Mode: serial
+INFO:agents.base_agent:Agents: intent → retrieval → memory → reasoning → synthesis → guardrails
+INFO:agents.base_agent:
+Classification:
+INFO:agents.base_agent:  Intent: question
+INFO:agents.base_agent:  Category: security
+INFO:agents.base_agent:  Urgency: low
+INFO:agents.base_agent:  Team: Support
+INFO:agents.base_agent:
+Results:
+INFO:agents.base_agent:  Confidence: 0.30
+INFO:agents.base_agent:  Documents Retrieved: 0
+INFO:agents.base_agent:  Past Tickets Found: 1
+INFO:agents.base_agent:  Pattern Detected: True
+INFO:agents.base_agent:  Safety Passed: True
+INFO:agents.base_agent:  ⚠️  NEEDS HUMAN REVIEW
+INFO:agents.base_agent:
+Response: Subject: Password Reset Instructions
+
+Dear User,
+
+Thank you for reaching out to our support team. I understand that you're having trouble with your password and need to reset it. I'm here to assist yo...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Stored ticket in episodic memory
+INFO:agents.base_agent:
+============================================================
+INFO:agents.base_agent:Processing Ticket: OBS_TEST_003
+INFO:agents.base_agent:Input: Request access to production database for new team member...
+INFO:agents.base_agent:============================================================
+
+INFO:agents.base_agent:Orchestrator processing: Request access to production database for new team member...
+INFO:agents.base_agent:Routing to multi-agent system
+INFO:agents.base_agent:Using SERIAL execution (default)
+INFO:agents.base_agent:Starting SERIAL execution
+INFO:agents.base_agent:Executing IntentAgent...
+INFO:agents.base_agent:Classifying intent for: Request access to production database for new team member...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:agents.base_agent:IntentAgent confidence: 0.90, overall: 0.90
+INFO:agents.base_agent:Classification: service_request, medium, confidence=0.90
+INFO:agents.base_agent:IntentAgent executed in 1.900s
+INFO:agents.base_agent:Executing RetrievalAgent...
+INFO:agents.base_agent:Searching knowledge base for: security service_request Request access to production database for new team member...
+ERROR:agents.base_agent:RetrievalAgent error: query_rag() got an unexpected keyword argument 'top_k'
+INFO:agents.base_agent:RetrievalAgent confidence: 0.30, overall: 0.30
+INFO:agents.base_agent:Executing MemoryAgent...
+INFO:agents.base_agent:Stored working memory in Redis for task_1769935683.806051
+INFO:agents.base_agent:Retrieved 1 tickets from PostgreSQL
+INFO:agents.base_agent:MemoryAgent confidence: 0.80, overall: 0.30
+INFO:agents.base_agent:Found 1 similar past tickets
+INFO:agents.base_agent:MemoryAgent executed in 0.004s
+INFO:agents.base_agent:Executing ReasoningAgent...
+INFO:agents.base_agent:Generating reasoning and insights...

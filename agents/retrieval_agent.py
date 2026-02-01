@@ -53,8 +53,9 @@ class RetrievalAgent(BaseAgent):
             
             logger.info(f"Searching knowledge base for: {search_query[:100]}...")
             
-            # Use existing RAG pipeline
-            results = query_rag(search_query, top_k=self.top_k)
+            # Use retrieval module directly instead of query_rag wrapper
+            from rag.retrieval import retrieval
+            results = retrieval.retrieve(search_query, top_k=self.top_k)
             
             # Extract documents and metadata
             retrieved_docs = []
